@@ -119,14 +119,18 @@ int main(void)
         1.0f, 0.0f, 1.0f, // Magenta
     };
 
+    // Create Vertex Array Object
+    unsigned int vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
 
     // Vertex buffer
-    unsigned int vertexbuffer;
-    glGenBuffers(1, &vertexbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    unsigned int vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, g_vertex_buffer_data.size() * sizeof(float), &g_vertex_buffer_data[0], GL_STATIC_DRAW);
 
-    // Vertex array
+    // Attributes and layout for the vertex buffer 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), nullptr);
 
@@ -173,6 +177,9 @@ int main(void)
     // Enable depth 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+
+    // Cull triangles which normal is not towards the camera
+    glEnable(GL_CULL_FACE);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
