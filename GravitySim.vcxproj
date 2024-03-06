@@ -133,6 +133,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\common\Controls.cpp" />
     <ClCompile Include="src\common\loadShader.cpp" />
     <ClCompile Include="src\glm\detail\glm.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -418,6 +419,7 @@
     <None Include="src\vendor\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\common\Controls.hpp" />
     <ClInclude Include="src\common\loadShader.h" />
     <ClInclude Include="src\glm\common.hpp" />
     <ClInclude Include="src\glm\detail\compute_common.hpp" />

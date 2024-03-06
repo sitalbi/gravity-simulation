@@ -6,6 +6,7 @@
 #include "common/loadShader.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "common/Controls.hpp"
 
 #define width 1280
 #define height 720
@@ -80,6 +81,43 @@ int main(void)
         20, 21, 22, 20, 22, 23  // Bottom face
     };
 
+    std::vector<float> g_color_buffer_data = {
+        // Front face
+        1.0f, 0.0f, 0.0f, // Red
+        1.0f, 0.0f, 0.0f, // Red
+        1.0f, 0.0f, 0.0f, // Red
+        1.0f, 0.0f, 0.0f, // Red
+
+        // Back face
+        0.0f, 1.0f, 0.0f, // Green
+        0.0f, 1.0f, 0.0f, // Green
+        0.0f, 1.0f, 0.0f, // Green
+        0.0f, 1.0f, 0.0f, // Green
+
+        // Right face
+        0.0f, 0.0f, 1.0f, // Blue
+        0.0f, 0.0f, 1.0f, // Blue
+        0.0f, 0.0f, 1.0f, // Blue
+        0.0f, 0.0f, 1.0f, // Blue
+
+        // Left face
+        1.0f, 1.0f, 0.0f, // Yellow
+        1.0f, 1.0f, 0.0f, // Yellow
+        1.0f, 1.0f, 0.0f, // Yellow
+        1.0f, 1.0f, 0.0f, // Yellow
+
+        // Top face
+        0.0f, 1.0f, 1.0f, // Cyan
+        0.0f, 1.0f, 1.0f, // Cyan
+        0.0f, 1.0f, 1.0f, // Cyan
+        0.0f, 1.0f, 1.0f, // Cyan
+
+        // Bottom face
+        1.0f, 0.0f, 1.0f, // Magenta
+        1.0f, 0.0f, 1.0f, // Magenta
+        1.0f, 0.0f, 1.0f, // Magenta
+        1.0f, 0.0f, 1.0f, // Magenta
+    };
 
 
     // Vertex buffer
@@ -98,18 +136,26 @@ int main(void)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, g_index_buffer_data.size() * sizeof(unsigned int), &g_index_buffer_data[0], GL_STATIC_DRAW);
 
+    // Color buffer
+    unsigned int colorbuffer;
+    glGenBuffers(1, &colorbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
+    glBufferData(GL_ARRAY_BUFFER, g_color_buffer_data.size() * sizeof(float), &g_color_buffer_data[0], GL_STATIC_DRAW);
 
-    // Projection matrix: 45° Field of View, 4:3 ratio, display range: 0.1 unit <-> 100 units
-    glm::mat4 Projection = glm::perspective(glm::radians(30.0f), (float)width / (float)height, 0.1f, 100.0f);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), nullptr);
 
-    glm::mat4 View = glm::lookAt(
-        glm::vec3(4, 3, 3), // Camera is at (4,3,3), in World Space
-        glm::vec3(0, 0, 0), // and looks at the origin
-        glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
-    );
+    // Create controls
+    Controls controls(window);
 
-    // Model matrix: an identity matrix (model will be at the origin)
+    // Projection matrix
+    glm::mat4 Projection = controls.getProjectionMatrix();
+
+    glm::mat4 View = controls.getViewMatrix();
+
+    // Model matrix: an identity matrix 
     glm::mat4 Model = glm::mat4(1.0f);
+
     // Our ModelViewProjection: multiplication of our 3 matrices
     glm::mat4 mvp = Projection * View * Model; 
 
@@ -122,7 +168,7 @@ int main(void)
 
     // Uniforms
     unsigned int matrixId = glGetUniformLocation(programID, "MVP");
-    glUniformMatrix4fv(matrixId, 1, GL_FALSE, &mvp[0][0]);
+    
 
     // Enable depth 
     glEnable(GL_DEPTH_TEST);
@@ -134,6 +180,16 @@ int main(void)
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        // Compute the MVP matrix from keyboard and mouse input
+        controls.computeMatricesFromInputs();
+        Projection = controls.getProjectionMatrix();
+        View = controls.getViewMatrix();
+        mvp = Projection * View * Model;
+
+        // Send our transformation to the currently bound shader,
+        glUniformMatrix4fv(matrixId, 1, GL_FALSE, &mvp[0][0]);
+
+        // Draw
         glDrawElements(GL_TRIANGLES, g_index_buffer_data.size(), GL_UNSIGNED_INT, nullptr);
 
         /* Swap front and back buffers */

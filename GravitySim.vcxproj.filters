@@ -24,6 +24,9 @@
     <ClCompile Include="src\glm\detail\glm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\common\Controls.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\VertexShader.shader" />
@@ -2587,6 +2590,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\glm\vector_relational.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\Controls.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
