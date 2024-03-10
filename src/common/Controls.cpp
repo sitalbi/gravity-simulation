@@ -2,50 +2,50 @@
 
 Controls::Controls(GLFWwindow* window)
 {
-	this->window = window;
-	position = glm::vec3(0, 0, 10);
-	horizontalAngle = 3.14f;
-	verticalAngle = 0.0f;
-	speed = 3.0f;
-	mouseSpeed = 0.04f;
-	xpos = 0;
-	ypos = 0;
-	width = 1280;
-	height = 720;
+	this->m_window = window;
+	m_position = glm::vec3(0, 0, 10);
+	m_horizontalAngle = 3.14f;
+	m_verticalAngle = 0.0f;
+	m_speed = 3.0f;
+	m_mouseSpeed = 0.04f;
+	m_xpos = 0;
+	m_ypos = 0;
+	m_width = 1280;
+	m_height = 720;
 
-	deltaTime = 0.0f;
-	lastTime = 0.0f;
-	currentTime = 0.0f;
+	m_deltaTime = 0.0f;
+	m_lastTime = 0.0f;
+	m_currentTime = 0.0f;
 
-	ProjectionMatrix = glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 100.0f);
+	m_ProjectionMatrix = glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 100.0f);
 }
 
 void Controls::computeMatricesFromInputs()
 {
-	currentTime = glfwGetTime();
-	deltaTime = float(currentTime - lastTime);
-	lastTime = currentTime;
+	m_currentTime = glfwGetTime();
+	m_deltaTime = float(m_currentTime - m_lastTime);
+	m_lastTime = m_currentTime;
 
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-	glfwGetCursorPos(window, &xpos, &ypos);
-	glfwSetCursorPos(window, width/ 2, height/ 2);
+	glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	glfwGetCursorPos(m_window, &m_xpos, &m_ypos);
+	glfwSetCursorPos(m_window, m_width/ 2, m_height/ 2);
 
 	//Compute new orientation
-	horizontalAngle += mouseSpeed * deltaTime * float(width / 2 - xpos);
-	verticalAngle += mouseSpeed * deltaTime * float(height / 2 - ypos);
+	m_horizontalAngle += m_mouseSpeed * m_deltaTime * float(m_width / 2 - m_xpos);
+	m_verticalAngle += m_mouseSpeed * m_deltaTime * float(m_height / 2 - m_ypos);
 
 	//Direction : Spherical coordinates to Cartesian coordinates conversion
 	glm::vec3 direction(
-		cos(verticalAngle) * sin(horizontalAngle),
-		sin(verticalAngle),
-		cos(verticalAngle) * cos(horizontalAngle)
+		cos(m_verticalAngle) * sin(m_horizontalAngle),
+		sin(m_verticalAngle),
+		cos(m_verticalAngle) * cos(m_horizontalAngle)
 	);
 
 	//Right vector
 	glm::vec3 right(
-		sin(horizontalAngle - 3.14f / 2.0f),
+		sin(m_horizontalAngle - 3.14f / 2.0f),
 		0,
-		cos(horizontalAngle - 3.14f / 2.0f)
+		cos(m_horizontalAngle - 3.14f / 2.0f)
 	);
 
 	//Up vector
@@ -53,46 +53,46 @@ void Controls::computeMatricesFromInputs()
 
 
 	// Move forward
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		position += direction * deltaTime * speed;
+	if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS) {
+		m_position += direction * m_deltaTime * m_speed;
 	}
 	// Move backward
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		position -= direction * deltaTime * speed;
+	if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS) {
+		m_position -= direction * m_deltaTime * m_speed;
 	}
 	// Move right
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		position += right * deltaTime * speed;
+	if (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS) {
+		m_position += right * m_deltaTime * m_speed;
 	}
 	// Move left
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		position -= right * deltaTime * speed;
+	if (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS) {
+		m_position -= right * m_deltaTime * m_speed;
 	}
 	// Move up
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-		position += up * deltaTime * speed;
+	if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+		m_position += up * m_deltaTime * m_speed;
 	}
 	// Move down
-	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-		position -= up * deltaTime * speed;
+	if (glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+		m_position -= up * m_deltaTime * m_speed;
 	}
 
 	// Camera (View) matrix
-	ViewMatrix = glm::lookAt(
-		position,       
-		position + direction, 
+	m_ViewMatrix = glm::lookAt(
+		m_position,       
+		m_position + direction, 
 		up 
 	);
 }
 
 glm::mat4 Controls::getViewMatrix()
 {
-	return ViewMatrix;
+	return m_ViewMatrix;
 }
 
 glm::mat4 Controls::getProjectionMatrix()
 {
-	return ProjectionMatrix;
+	return m_ProjectionMatrix;
 }
 
 

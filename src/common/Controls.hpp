@@ -14,24 +14,24 @@ public:
 	glm::mat4 getProjectionMatrix();
 
 private:
-	GLFWwindow* window;
+	GLFWwindow* m_window;
 
-	glm::mat4 ViewMatrix;
-	glm::mat4 ProjectionMatrix;
-	glm::vec3 position;
+	glm::mat4 m_ViewMatrix;
+	glm::mat4 m_ProjectionMatrix;
+	glm::vec3 m_position;
 
-	float horizontalAngle;
-	float verticalAngle;
-	float speed;
-	float mouseSpeed;
+	float m_horizontalAngle;
+	float m_verticalAngle;
+	float m_speed;
+	float m_mouseSpeed;
 
-	double xpos;
-	double ypos;
+	double m_xpos;
+	double m_ypos;
 
-	int width;
-	int height;
+	int m_width;
+	int m_height;
 
-	float deltaTime;
-	float lastTime;
-	double currentTime;
+	float m_deltaTime;
+	float m_lastTime;
+	double m_currentTime;
 };
