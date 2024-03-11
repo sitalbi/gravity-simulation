@@ -1,14 +1,14 @@
 #version 330 core
 
 layout(location = 0) in vec4 position;
-layout(location = 1) in vec4 color;
 
 out vec4 vColor;
 
-uniform mat4 MVP;
+uniform mat4 u_MVP;
+uniform vec4 u_Color;
 
 void main()
 {
-	gl_Position = MVP * position;
-	vColor = color;
+	gl_Position = u_MVP * position;
+	vColor = u_Color;
 }

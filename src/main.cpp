@@ -3,7 +3,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "common/loadShader.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "common/Controls.hpp"
@@ -12,6 +11,8 @@
 #include "IndexBuffer.h"
 #include "VertexArray.h"
 #include "VertexBufferLayout.h"
+#include "Shader.h"
+#include "Renderer.h"
 
 #define width 1280
 #define height 720
@@ -141,10 +142,6 @@ int main(void)
     // Create and bind color buffer
     VertexBuffer cb(&g_ColorBufferData[0], g_ColorBufferData.size() * sizeof(float));
 
-    // Color buffer layout
-    layout.Push(GL_FLOAT, 3);
-    va.AddBuffer(cb, layout);
-
 
     // ModelViewProjection matrix
     glm::mat4 Projection = glm::perspective(glm::radians(30.0f), (float)width / (float)height, 0.1f, 100.0f);
@@ -160,16 +157,12 @@ int main(void)
     // Our ModelViewProjection: multiplication of our 3 matrices
     glm::mat4 mvp = Projection * View * Model;
 
-    // Create and compile shaders
-    unsigned int programID = LoadShaders("res/shaders/VertexShader.shader", "res/shaders/FragmentShader.shader");
+    // Create, compile and bind shader
+    Shader shader("res/shaders/VertexShader.shader", "res/shaders/FragmentShader.shader");
+    shader.Bind();
 
-    // Use our shader
-    glUseProgram(programID);
-
-    // Shader uniforms
-    unsigned int matrixId = glGetUniformLocation(programID, "MVP");
-    glUniformMatrix4fv(matrixId, 1, GL_FALSE, &mvp[0][0]);
-    
+    shader.SetUniformMat4f("u_MVP", mvp);
+    shader.SetUniform4f("u_Color", 0.0f, 0.0f, 1.0f, 1.0f);
 
     // Enable depth 
     glEnable(GL_DEPTH_TEST);
@@ -178,14 +171,14 @@ int main(void)
     // Cull triangles which normal is not towards the camera
     glEnable(GL_CULL_FACE);
 
+    Renderer renderer;
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
-        /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        renderer.Clear();
 
-        // Draw
-        glDrawElements(GL_TRIANGLES, g_IndexBufferData.size(), GL_UNSIGNED_INT, nullptr);
+        renderer.Draw(va, ib, shader);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
