@@ -1,21 +1,30 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
-#include "common/Controls.hpp"
 
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
-#include "VertexArray.h"
-#include "VertexBufferLayout.h"
-#include "Shader.h"
-#include "Renderer.h"
+#include "renderer/VertexBuffer.h"
+#include "renderer/IndexBuffer.h"
+#include "renderer/VertexArray.h"
+#include "renderer/VertexBufferLayout.h"
+#include "renderer/Shader.h"
+#include "renderer/Renderer.h"
+#include "renderer/models/baseModels/Cube.h"
+
+#include "common/Controls.h"
 
 #define width 1280
 #define height 720
+
+void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+{
+    std::cerr << "GL CALLBACK: " << (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "") << " type = 0x" << std::hex << type << ", severity = 0x" << std::hex << severity << ", message = " << message << std::endl;
+}
 
 int main(void)
 {
@@ -25,9 +34,13 @@ int main(void)
     if (!glfwInit())
         return -1;
 
+    /* Set GLFW error callback */
+    glfwSetErrorCallback([](int error, const char* description) {
+        std::cerr << "GLFW Error: " << description << std::endl;
+        });
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(width, height, "Gravity simulation", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -37,110 +50,24 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
-    glewInit();
+    /* Initialize GLEW */
+    GLenum err = glewInit();
+    if (err != GLEW_OK)
+    {
+        std::cerr << "GLEW Error: " << glewGetErrorString(err) << std::endl;
+        return -1;
+    }
 
-    std::vector<float> g_VertexBufferData = {
-        // Front face
-        -0.5f, -0.5f, 0.5f,
-         0.5f, -0.5f, 0.5f,
-         0.5f,  0.5f, 0.5f,
-        -0.5f,  0.5f, 0.5f,
+    /* Enable OpenGL debug output */
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(MessageCallback, nullptr);
 
-        // Back face
-        -0.5f, -0.5f, -0.5f,
-        -0.5f,  0.5f, -0.5f,
-         0.5f,  0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
+    // Create renderer
+    Renderer renderer;
 
-        // Right face
-        0.5f, -0.5f,  0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f,  0.5f, -0.5f,
-        0.5f,  0.5f,  0.5f,
-
-        // Left face
-        -0.5f, -0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-
-        // Top face
-        -0.5f, 0.5f,  0.5f,
-         0.5f, 0.5f,  0.5f,
-         0.5f, 0.5f, -0.5f,
-        -0.5f, 0.5f, -0.5f,
-
-        // Bottom face
-        -0.5f, -0.5f,  0.5f,
-        -0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f,  0.5f
-    };
-
-
-    std::vector<unsigned int> g_IndexBufferData = {
-        0, 1, 2, 0, 2, 3,       // Front face
-        4, 5, 6, 4, 6, 7,       // Back face
-        8, 9, 10, 8, 10, 11,    // Right face
-        12, 13, 14, 12, 14, 15, // Left face
-        16, 17, 18, 16, 18, 19, // Top face
-        20, 21, 22, 20, 22, 23  // Bottom face
-    };
-
-    std::vector<float> g_ColorBufferData = {
-        // Front face
-        1.0f, 0.0f, 0.0f, // Red
-        1.0f, 0.0f, 0.0f, // Red
-        1.0f, 0.0f, 0.0f, // Red
-        1.0f, 0.0f, 0.0f, // Red
-
-        // Back face
-        0.0f, 1.0f, 0.0f, // Green
-        0.0f, 1.0f, 0.0f, // Green
-        0.0f, 1.0f, 0.0f, // Green
-        0.0f, 1.0f, 0.0f, // Green
-
-        // Right face
-        0.0f, 0.0f, 1.0f, // Blue
-        0.0f, 0.0f, 1.0f, // Blue
-        0.0f, 0.0f, 1.0f, // Blue
-        0.0f, 0.0f, 1.0f, // Blue
-
-        // Left face
-        1.0f, 1.0f, 0.0f, // Yellow
-        1.0f, 1.0f, 0.0f, // Yellow
-        1.0f, 1.0f, 0.0f, // Yellow
-        1.0f, 1.0f, 0.0f, // Yellow
-
-        // Top face
-        0.0f, 1.0f, 1.0f, // Cyan
-        0.0f, 1.0f, 1.0f, // Cyan
-        0.0f, 1.0f, 1.0f, // Cyan
-        0.0f, 1.0f, 1.0f, // Cyan
-
-        // Bottom face
-        1.0f, 0.0f, 1.0f, // Magenta
-        1.0f, 0.0f, 1.0f, // Magenta
-        1.0f, 0.0f, 1.0f, // Magenta
-        1.0f, 0.0f, 1.0f, // Magenta
-    };
-
-    // Create and bind vertex array
-    VertexArray va;
-
-    // Create and bind vertex buffer
-    VertexBuffer vb(&g_VertexBufferData[0], g_VertexBufferData.size() * sizeof(float));
-
-    // Vertex buffer layout
-    VertexBufferLayout layout;
-    layout.Push(GL_FLOAT, 3);
-    va.AddBuffer(vb, layout);
-
-    // Create and bind index buffer
-    IndexBuffer ib(&g_IndexBufferData[0], g_IndexBufferData.size());
-
-    // Create and bind color buffer
-    VertexBuffer cb(&g_ColorBufferData[0], g_ColorBufferData.size() * sizeof(float));
+    // Create cube
+    Cube cube;
+    Cube cube2;
 
 
     // ModelViewProjection matrix
@@ -157,11 +84,20 @@ int main(void)
     // Our ModelViewProjection: multiplication of our 3 matrices
     glm::mat4 mvp = Projection * View * Model;
 
-    // Create, compile and bind shader
-    Shader shader("res/shaders/VertexShader.shader", "res/shaders/FragmentShader.shader");
-    shader.Bind();
+    
 
-    shader.SetUniformMat4f("u_MVP", mvp);
+    // Create, compile and bind shader
+    Shader shader("res/shaders/VertexShader.glsl", "res/shaders/FragmentShader.glsl");
+
+    // Check for OpenGL errors after shader creation
+    GLenum shaderErr = glGetError();
+    if (shaderErr != GL_NO_ERROR)
+    {
+        std::cerr << "Shader Creation Error: " << shaderErr << std::endl;
+        return -1;
+    }
+
+    shader.Bind();
     shader.SetUniform4f("u_Color", 0.0f, 0.0f, 1.0f, 1.0f);
 
     // Enable depth 
@@ -171,20 +107,27 @@ int main(void)
     // Cull triangles which normal is not towards the camera
     glEnable(GL_CULL_FACE);
 
-    Renderer renderer;
-
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         renderer.Clear();
 
-        renderer.Draw(va, ib, shader);
+        renderer.Draw(cube, mvp, shader);   
+        renderer.Draw(cube2, mvp, shader);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
 
         /* Poll for and process events */
         glfwPollEvents();
+
+        // Check for OpenGL errors after each frame
+        GLenum frameErr = glGetError();
+        if (frameErr != GL_NO_ERROR)
+        {
+            std::cerr << "OpenGL Error: " << frameErr << std::endl;
+            return -1;
+        }
     }
 
     glfwTerminate();

@@ -5,6 +5,7 @@ Shader::Shader(const std::string& vertexFilePath, const std::string& fragmentFil
 	: m_vertexFilePath(vertexFilePath), m_fragmentFilePath(fragmentFilePath), m_RendererID(0)
 {
 	m_RendererID = CompileShader();
+	Bind();
 }
 
 Shader::~Shader()

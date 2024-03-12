@@ -1,9 +1,9 @@
-#include "Controls.hpp"
+#include "Controls.h"
 
 Controls::Controls(GLFWwindow* window)
 {
 	this->m_window = window;
-	m_position = glm::vec3(0, 0, 10);
+	m_position = glm::vec3(0, 0, 5);
 	m_horizontalAngle = 3.14f;
 	m_verticalAngle = 0.0f;
 	m_speed = 3.0f;
