@@ -8,10 +8,6 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "renderer/VertexBuffer.h"
-#include "renderer/IndexBuffer.h"
-#include "renderer/VertexArray.h"
-#include "renderer/VertexBufferLayout.h"
 #include "renderer/Shader.h"
 #include "renderer/Renderer.h"
 #include "renderer/models/baseModels/Cube.h"
@@ -68,7 +64,7 @@ int main(void)
     Controls controls(window);
 
     // Create cube
-    Cube cube(glm::vec3(0.0f, 0.0f, 0.0f));
+    Cube cube;
 
 
     // Projection matrix
@@ -76,14 +72,15 @@ int main(void)
 
     // View matrix (camera)
     glm::mat4 View = glm::lookAt(
-		glm::vec3(0, 0, 0), // Camera is at (0,0,0), in World Space
+		glm::vec3(0, 0, -2), // Camera is at (0,0,0), in World Space
 		glm::vec3(0, 0, 0), // and looks at the origin
 		glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
 	);
 
+    // Model matrices for cubes
     glm::mat4 Model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
     glm::mat4 Model2 = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f));
-    glm::mat4 Model3 = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 5.0f, 0.0f));
+    glm::mat4 Model3 = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 2.0f, 0.0f));
 
 
     // Create, compile and bind shader
