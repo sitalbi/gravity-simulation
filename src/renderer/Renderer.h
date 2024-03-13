@@ -15,6 +15,6 @@ private:
 
 public: 
 	void Draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const;
-	void Draw(const Model& model, glm::mat4 mvpMatrix ,Shader& shader) const;
+	void Draw(const Model& model, glm::mat4 projectionMat, glm::mat4 viewMat, glm::mat4 modelMat,Shader& shader) const;
 	void Clear() const;
 };

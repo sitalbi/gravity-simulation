@@ -65,26 +65,26 @@ int main(void)
     // Create renderer
     Renderer renderer;
 
+    Controls controls(window);
+
     // Create cube
-    Cube cube;
-    Cube cube2;
+    Cube cube(glm::vec3(0.0f, 0.0f, 0.0f));
 
 
-    // ModelViewProjection matrix
+    // Projection matrix
     glm::mat4 Projection = glm::perspective(glm::radians(30.0f), (float)width / (float)height, 0.1f, 100.0f);
 
+    // View matrix (camera)
     glm::mat4 View = glm::lookAt(
-        glm::vec3(4, 3, 3), // Camera is at (4,3,3), in World Space
-        glm::vec3(0, 0, 0), // and looks at the origin
-        glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
-    );
+		glm::vec3(0, 0, 0), // Camera is at (0,0,0), in World Space
+		glm::vec3(0, 0, 0), // and looks at the origin
+		glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
+	);
 
-    // Model matrix: an identity matrix (model will be at the origin)
-    glm::mat4 Model = glm::mat4(1.0f);
-    // Our ModelViewProjection: multiplication of our 3 matrices
-    glm::mat4 mvp = Projection * View * Model;
+    glm::mat4 Model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    glm::mat4 Model2 = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f));
+    glm::mat4 Model3 = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 5.0f, 0.0f));
 
-    
 
     // Create, compile and bind shader
     Shader shader("res/shaders/VertexShader.glsl", "res/shaders/FragmentShader.glsl");
@@ -98,7 +98,7 @@ int main(void)
     }
 
     shader.Bind();
-    shader.SetUniform4f("u_Color", 0.0f, 0.0f, 1.0f, 1.0f);
+    shader.SetUniform4f("u_Color", 0.0f, 0.5f, 0.5f, 1.0f);
 
     // Enable depth 
     glEnable(GL_DEPTH_TEST);
@@ -112,8 +112,13 @@ int main(void)
     {
         renderer.Clear();
 
-        renderer.Draw(cube, mvp, shader);   
-        renderer.Draw(cube2, mvp, shader);
+        controls.computeMatricesFromInputs();
+        Projection = controls.getProjectionMatrix();
+        View = controls.getViewMatrix();
+
+        renderer.Draw(cube, Projection, View, Model, shader);
+        renderer.Draw(cube, Projection, View, Model2, shader);
+        renderer.Draw(cube, Projection, View, Model3, shader);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);

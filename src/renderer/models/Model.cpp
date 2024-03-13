@@ -5,7 +5,6 @@ Model::Model(const float* vertexData, const unsigned int* indexData, unsigned in
 {
 }
 
-
 void Model::init() {
     // Create vertex array
     glGenVertexArrays(1, &m_vaoID);
