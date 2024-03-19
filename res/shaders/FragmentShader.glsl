@@ -16,9 +16,11 @@ void main()
     vec4 n = w_Normal;
     vec4 l = w_LightDirection;
 
+    vec4 ambientColor = vec4(0.15,0.15,0.15,1) * u_Color;
+
     float distance = length(u_LightPosition - w_Position);
 
     float distanceAttenuation = 1.0 / (distance * distance);
-    color = u_Color * u_LightColor * u_LightPower * clamp(dot(n, l), 0, 1) * distanceAttenuation;
+    color = ambientColor + u_Color * u_LightColor * u_LightPower * clamp(dot(n, l), 0, 1) * distanceAttenuation;
 
 }

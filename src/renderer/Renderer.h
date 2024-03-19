@@ -5,13 +5,18 @@
 #include "Shader.h"
 #include "models/Model.h"
 #include "glm/glm.hpp"
+#include "../universe/Body.h"
 
 class Renderer
 {
 private:
+	glm::mat4 m_projectionMat;
 
+	void Draw(Model* model, glm::mat4 viewMat, glm::mat4 modelMat, Shader& shader) const;
 
 public: 
-	void Draw(Model& model, glm::mat4 projectionMat, glm::mat4 viewMat, glm::mat4 modelMat,Shader& shader) const;
+	Renderer(glm::mat4 projectionMatrix) : m_projectionMat(projectionMatrix) {}
+
+	void Draw(Body* body, glm::mat4 viewMat, Shader& shader) const;
 	void Clear() const;
 };

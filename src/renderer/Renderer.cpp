@@ -1,13 +1,20 @@
 #include "Renderer.h"
 
 
-void Renderer::Draw(Model& model, glm::mat4 projectionMat, glm::mat4 viewMat, glm::mat4 modelMat, Shader& shader) const
+void Renderer::Draw(Model* model, glm::mat4 viewMat, glm::mat4 modelMat, Shader& shader) const
 {
-	glm::mat4 mvpMatrix = projectionMat * viewMat * modelMat;
+	glm::mat4 mvpMatrix = m_projectionMat * viewMat * modelMat;
 	shader.Bind();
+	// Set Vertex shader uniforms
 	shader.SetUniformMat4f("u_MVP", mvpMatrix);
 	shader.SetUniformMat4f("u_M", modelMat);
-	model.Draw();
+	model->Draw();
+}
+
+void Renderer::Draw(Body* body, glm::mat4 viewMat, Shader& shader) const
+{
+	glm::mat4 modelMat = glm::translate(glm::mat4(1.0f), body->GetPosition());
+	Draw(body->GetModel(), viewMat, modelMat, shader);
 }
 
 

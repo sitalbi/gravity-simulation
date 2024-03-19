@@ -12,6 +12,8 @@
 #include "renderer/Renderer.h"
 #include "renderer/models/baseModels/Cube.h"
 
+#include "universe/Body.h"
+
 #include "common/Controls.h"
 
 #define width 1280
@@ -58,9 +60,6 @@ int main(void)
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(MessageCallback, nullptr);
 
-    // Create renderer
-    Renderer renderer;
-
 
     // Create cube
     Cube cube;
@@ -69,13 +68,16 @@ int main(void)
     glm::mat4 Projection = glm::perspective(glm::radians(30.0f), (float)width / (float)height, 0.1f, 100.0f);
     glm::mat4 View;
 
+    // Create renderer
+    Renderer renderer(Projection);
+
+    // Create controls
     Controls controls(window, Projection);
 
-    // Model matrices for cubes
-    glm::mat4 Model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-    glm::mat4 Model2 = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f));
-    glm::mat4 Model3 = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 2.0f, 0.0f));
-
+    // Create bodies with a cube as model
+    Body body1(glm::vec3(0.0f, 0.0f, 0.0f), &cube);
+    Body body2(glm::vec3(2.0f, 1.0f, 0.0f), &cube);
+    Body body3(glm::vec3(4.0f, 2.0f, 0.0f), &cube);
 
     // Create, compile and bind shader
     Shader shader("res/shaders/VertexShader.glsl", "res/shaders/FragmentShader.glsl");
@@ -89,9 +91,9 @@ int main(void)
     }
 
     // Set light position vector
-    glm::vec3 lightPos = glm::vec3(3.0f, 3.0f, 10.0f);
+    glm::vec3 lightPos = glm::vec3(0.0f, 0.0f, 10.0f);
     
-    // Set shader uniforms
+    // Set Fragment shader uniforms
     shader.SetUniform4f("u_Color", 0.0f, 0.5f, 0.5f, 1.0f);
     shader.SetUniform4f("u_LightColor", 1.0f, 1.0f, 1.0f, 1.0f);
     shader.SetUniform4f("u_LightPosition", lightPos.x, lightPos.y, lightPos.z, 1.0f);
@@ -104,7 +106,6 @@ int main(void)
     // Cull triangles which normal is not towards the camera
     glEnable(GL_CULL_FACE);
 
-    float i = 0.05f;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -114,16 +115,10 @@ int main(void)
         controls.computeMatricesFromInputs();
         View = controls.getViewMatrix();
 
-        // Increment light position x by i until 10 and then decrement by i until 0
-        if (lightPos.x >= 10.0f || lightPos.x <= 0.0f)
-			i = -i;
-        lightPos.x += i;
 
-        shader.SetUniform4f("u_LightPosition", lightPos.x, lightPos.y, lightPos.z, 1.0f);
-
-        renderer.Draw(cube, Projection, View, Model, shader);
-        renderer.Draw(cube, Projection, View, Model2, shader);
-        renderer.Draw(cube, Projection, View, Model3, shader);
+        renderer.Draw(&body1, View, shader);
+        renderer.Draw(&body2, View, shader);
+        renderer.Draw(&body3, View, shader);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
