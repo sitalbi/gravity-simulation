@@ -137,10 +137,12 @@
     <ClCompile Include="src\common\Controls.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\renderer\models\baseModels\Cube.cpp" />
+    <ClCompile Include="src\renderer\models\baseModels\Sphere.cpp" />
     <ClCompile Include="src\renderer\models\Model.cpp" />
     <ClCompile Include="src\renderer\Renderer.cpp" />
     <ClCompile Include="src\renderer\Shader.cpp" />
     <ClCompile Include="src\universe\Body.cpp" />
+    <ClCompile Include="src\universe\Universe.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\include\glm\detail\func_common.inl" />
@@ -277,8 +279,8 @@
     <None Include="Dependencies\include\glm\gtx\vector_angle.inl" />
     <None Include="Dependencies\include\glm\gtx\vector_query.inl" />
     <None Include="Dependencies\include\glm\gtx\wrap.inl" />
-    <None Include="res\shaders\FragmentShader.glsl" />
-    <None Include="res\shaders\VertexShader.glsl" />
+    <None Include="res\shaders\default\FragmentShader.glsl" />
+    <None Include="res\shaders\default\VertexShader.glsl" />
     <None Include="src\vendor\glm\detail\func_common.inl" />
     <None Include="src\vendor\glm\detail\func_common_simd.inl" />
     <None Include="src\vendor\glm\detail\func_exponential.inl" />
@@ -665,10 +667,12 @@
     <ClInclude Include="Dependencies\include\glm\vector_relational.hpp" />
     <ClInclude Include="src\common\Controls.h" />
     <ClInclude Include="src\renderer\models\baseModels\Cube.h" />
+    <ClInclude Include="src\renderer\models\baseModels\Sphere.h" />
     <ClInclude Include="src\renderer\models\Model.h" />
     <ClInclude Include="src\renderer\Renderer.h" />
     <ClInclude Include="src\renderer\Shader.h" />
     <ClInclude Include="src\universe\Body.h" />
+    <ClInclude Include="src\universe\Universe.h" />
     <ClInclude Include="src\vendor\glm\common.hpp" />
     <ClInclude Include="src\vendor\glm\detail\compute_common.hpp" />
     <ClInclude Include="src\vendor\glm\detail\compute_vector_decl.hpp" />

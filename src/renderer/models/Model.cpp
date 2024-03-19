@@ -1,9 +1,10 @@
 #include "Model.h"
 
-Model::Model(const float* vertexData, const unsigned int* indexData, unsigned int vertexDataSize, unsigned int indexDataCount, const float* m_normalData, unsigned int m_normalDataSize)
-	: m_vertexDataSize(vertexDataSize), m_indexDataCount(indexDataCount), m_vertexData(vertexData), m_indexData(indexData), m_normalData(m_normalData), m_normalDataSize(m_normalDataSize)
+Model::Model(const float* vertexData, const unsigned int* indexData, unsigned int vertexDataSize, unsigned int indexDataCount, const float* normalData, unsigned int normalDataSize)
+    : m_vertexDataSize(vertexDataSize), m_indexDataCount(indexDataCount), m_vertexData(vertexData), m_indexData(indexData), m_normalData(normalData), m_normalDataSize(normalDataSize)
 {
 }
+
 
 void Model::init() {
     // Create vertex array

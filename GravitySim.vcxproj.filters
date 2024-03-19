@@ -39,10 +39,16 @@
     <ClCompile Include="src\universe\Body.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\renderer\models\baseModels\Sphere.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\universe\Universe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\shaders\VertexShader.glsl" />
-    <None Include="res\shaders\FragmentShader.glsl" />
+    <None Include="res\shaders\default\VertexShader.glsl" />
+    <None Include="res\shaders\default\FragmentShader.glsl" />
     <None Include="src\vendor\glm\detail\func_common.inl">
       <Filter>Header Files</Filter>
     </None>
@@ -2473,6 +2479,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\universe\Body.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\models\baseModels\Sphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\universe\Universe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

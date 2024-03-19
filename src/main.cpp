@@ -11,10 +11,12 @@
 #include "renderer/Shader.h"
 #include "renderer/Renderer.h"
 #include "renderer/models/baseModels/Cube.h"
+#include "renderer/models/baseModels/Sphere.h"
 
 #include "universe/Body.h"
 
 #include "common/Controls.h"
+#include "universe/Universe.h"
 
 #define width 1280
 #define height 720
@@ -64,23 +66,38 @@ int main(void)
     // Create cube
     Cube cube;
 
+    Sphere sphere(1.0f, 20);
+
     // Projection matrix
     glm::mat4 Projection = glm::perspective(glm::radians(30.0f), (float)width / (float)height, 0.1f, 100.0f);
-    glm::mat4 View;
+    glm::mat4 View = glm::lookAt(
+		glm::vec3(1, 0, 100), // Camera position in World Space
+		glm::vec3(0, 0, 0), // Looks at the origin
+		glm::vec3(0, 1, 0)  // Head is up
+	);
 
     // Create renderer
     Renderer renderer(Projection);
 
     // Create controls
-    Controls controls(window, Projection);
+    Controls controls(window, Projection, glm::vec3(1, 0, 50));
 
     // Create bodies with a cube as model
-    Body body1(glm::vec3(0.0f, 0.0f, 0.0f), &cube);
-    Body body2(glm::vec3(2.0f, 1.0f, 0.0f), &cube);
-    Body body3(glm::vec3(4.0f, 2.0f, 0.0f), &cube);
+    Body body1(glm::vec3(20.0f, 0.0f, 0.0f), &sphere, glm::vec4(0.0f, 0.5f, 0.5f, 1.0f), glm::vec3(0.0f, 0.055f, 0.0f), 25.0f, 0.4f);
+    //Body body2(glm::vec3(15.0f, 0.0f, 0.0f), &sphere, glm::vec4(0.5f, 0.0f, 0.5f, 1.0f), glm::vec3(0.0f, 0.075f, 0.0f), 100.0f, 2.0f);
+    Body star(glm::vec3(0.0f, 0.0f, 0.0f), &sphere, glm::vec4(0.5f, 0.5f, 0.0f, 1.0f), glm::vec3(0.0f, 0.00f, 0.0f), 1000.0f, 100.0f);
+    //Body body2(glm::vec3(1.0f, 1.0f, 0.0f), &sphere, glm::vec4(0.5f, 0.0f, 0.5f, 1.0f));
+    //Body body3(glm::vec3(3.0f, 2.0f, 1.0f), &sphere, glm::vec4(0.5f, 0.5f, 0.0f, 1.0f));
+
+    // Create universe and add bodies
+    Universe universe;
+    
+    universe.AddBody(&body1);
+    //universe.AddBody(&body2);
+    universe.AddBody(&star);
 
     // Create, compile and bind shader
-    Shader shader("res/shaders/VertexShader.glsl", "res/shaders/FragmentShader.glsl");
+    Shader shader("res/shaders/default/VertexShader.glsl", "res/shaders/default/FragmentShader.glsl");
 
     // Check for OpenGL errors after shader creation
     GLenum shaderErr = glGetError();
@@ -91,13 +108,13 @@ int main(void)
     }
 
     // Set light position vector
-    glm::vec3 lightPos = glm::vec3(0.0f, 0.0f, 10.0f);
+    glm::vec3 lightPos = glm::vec3(0.0f, 5.0f, 10.0f);
+    glm::vec3 lightDirection = glm::normalize(glm::vec3(1.0f, 1.0f, -1.0f));
     
     // Set Fragment shader uniforms
-    shader.SetUniform4f("u_Color", 0.0f, 0.5f, 0.5f, 1.0f);
     shader.SetUniform4f("u_LightColor", 1.0f, 1.0f, 1.0f, 1.0f);
+    shader.SetUniform1f("u_LightPower",5000.0f);
     shader.SetUniform4f("u_LightPosition", lightPos.x, lightPos.y, lightPos.z, 1.0f);
-    shader.SetUniform1f("u_LightPower", 200.0f);
 
     // Enable depth 
     glEnable(GL_DEPTH_TEST);
@@ -115,10 +132,11 @@ int main(void)
         controls.computeMatricesFromInputs();
         View = controls.getViewMatrix();
 
+        universe.Update();
 
         renderer.Draw(&body1, View, shader);
-        renderer.Draw(&body2, View, shader);
-        renderer.Draw(&body3, View, shader);
+        //renderer.Draw(&body2, View, shader);
+        renderer.Draw(&star, View, shader);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);

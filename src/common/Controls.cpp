@@ -1,9 +1,9 @@
 #include "Controls.h"
 
-Controls::Controls(GLFWwindow* window, glm::mat4 ProjectionMatrix)
+Controls::Controls(GLFWwindow* window, glm::mat4 ProjectionMatrix, glm::vec3 Position)
 {
 	this->m_window = window;
-	m_position = glm::vec3(0, 0, 5);
+	m_position = Position;
 	m_horizontalAngle = 3.14f;
 	m_verticalAngle = 0.0f;
 	m_speed = 3.0f;

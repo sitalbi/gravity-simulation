@@ -9,7 +9,7 @@
 class Controls
 {
 public:
-	Controls(GLFWwindow* window, glm::mat4 ProjectionMatrix);
+	Controls(GLFWwindow* window, glm::mat4 ProjectionMatrix, glm::vec3 Position);
 
 	void computeMatricesFromInputs();
 	glm::mat4 getViewMatrix();
