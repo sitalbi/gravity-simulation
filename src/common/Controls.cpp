@@ -1,6 +1,6 @@
 #include "Controls.h"
 
-Controls::Controls(GLFWwindow* window)
+Controls::Controls(GLFWwindow* window, glm::mat4 ProjectionMatrix)
 {
 	this->m_window = window;
 	m_position = glm::vec3(0, 0, 5);
@@ -17,7 +17,7 @@ Controls::Controls(GLFWwindow* window)
 	m_lastTime = 0.0f;
 	m_currentTime = 0.0f;
 
-	m_ProjectionMatrix = glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 100.0f);
+	m_ProjectionMatrix = ProjectionMatrix;
 }
 
 void Controls::computeMatricesFromInputs()
@@ -33,6 +33,12 @@ void Controls::computeMatricesFromInputs()
 	//Compute new orientation
 	m_horizontalAngle += m_mouseSpeed * m_deltaTime * float(m_width / 2 - m_xpos);
 	m_verticalAngle += m_mouseSpeed * m_deltaTime * float(m_height / 2 - m_ypos);
+
+	// Limit vertical angle
+	m_verticalAngle = fmod(m_verticalAngle, M_PI);
+
+	// Limit horizontal angle
+	m_horizontalAngle = fmod(m_horizontalAngle, M_PI * 2);
 
 	//Direction : Spherical coordinates to Cartesian coordinates conversion
 	glm::vec3 direction(

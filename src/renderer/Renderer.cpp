@@ -6,6 +6,7 @@ void Renderer::Draw(Model& model, glm::mat4 projectionMat, glm::mat4 viewMat, gl
 	glm::mat4 mvpMatrix = projectionMat * viewMat * modelMat;
 	shader.Bind();
 	shader.SetUniformMat4f("u_MVP", mvpMatrix);
+	shader.SetUniformMat4f("u_M", modelMat);
 	model.Draw();
 }
 

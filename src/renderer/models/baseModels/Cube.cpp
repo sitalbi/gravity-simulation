@@ -49,7 +49,48 @@ static const std::vector<unsigned int> g_IndexBufferData = {
         20, 21, 22, 20, 22, 23  // Bottom face
 };
 
-Cube::Cube() : Model(g_VertexBufferData.data(), g_IndexBufferData.data(), g_VertexBufferData.size() * sizeof(float), g_IndexBufferData.size())
+// Normals for each vertex
+static const std::vector<float> g_NormalBufferData = {
+    // Front face
+    0.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,
+
+    // Back face
+    0.0f, 0.0f, -1.0f,
+    0.0f, 0.0f, -1.0f,
+    0.0f, 0.0f, -1.0f,
+    0.0f, 0.0f, -1.0f,
+
+    // Right face
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+
+    // Left face
+    -1.0f, 0.0f, 0.0f,
+    -1.0f, 0.0f, 0.0f,
+    -1.0f, 0.0f, 0.0f,
+    -1.0f, 0.0f, 0.0f,
+
+    // Top face
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+
+    // Bottom face
+    0.0f, -1.0f, 0.0f,
+    0.0f, -1.0f, 0.0f,
+    0.0f, -1.0f, 0.0f,
+    0.0f, -1.0f, 0.0f
+};
+
+Cube::Cube() 
+    : Model(g_VertexBufferData.data(), g_IndexBufferData.data(), g_VertexBufferData.size() * sizeof(float), 
+        g_IndexBufferData.size(), g_NormalBufferData.data(), g_NormalBufferData.size() * sizeof(float))
 {
     init();
 }

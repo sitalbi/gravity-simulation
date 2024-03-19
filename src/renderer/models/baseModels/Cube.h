@@ -4,6 +4,8 @@
 
 class Cube : public Model
 {
+private:
+
 public:
 	Cube();
 

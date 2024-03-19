@@ -4,10 +4,12 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+#define M_PI 3.14159265358979323846
+
 class Controls
 {
 public:
-	Controls(GLFWwindow* window);
+	Controls(GLFWwindow* window, glm::mat4 ProjectionMatrix);
 
 	void computeMatricesFromInputs();
 	glm::mat4 getViewMatrix();
