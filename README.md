@@ -3,4 +3,5 @@ Gravity simulation created with OpenGL
 
 ## To do 
 
-Implement Emitting object for Lighting.
+- Implement Emitting object for Lighting.
+- Verlet integration
