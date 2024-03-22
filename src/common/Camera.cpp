@@ -1,12 +1,12 @@
-#include "Controls.h"
+#include "Camera.h"
 
-Controls::Controls(GLFWwindow* window, glm::mat4 ProjectionMatrix, glm::vec3 Position)
+Camera::Camera(GLFWwindow* window, glm::mat4 ProjectionMatrix, glm::vec3 Position)
 {
 	this->m_window = window;
 	m_position = Position;
 	m_horizontalAngle = 3.14f;
 	m_verticalAngle = 0.0f;
-	m_speed = 3.0f;
+	m_speed = 6.0f;
 	m_mouseSpeed = 0.04f;
 	m_xpos = 0;
 	m_ypos = 0;
@@ -20,7 +20,7 @@ Controls::Controls(GLFWwindow* window, glm::mat4 ProjectionMatrix, glm::vec3 Pos
 	m_ProjectionMatrix = ProjectionMatrix;
 }
 
-void Controls::computeMatricesFromInputs()
+void Camera::computeMatricesFromInputs()
 {
 	m_currentTime = glfwGetTime();
 	m_deltaTime = float(m_currentTime - m_lastTime);
@@ -91,14 +91,19 @@ void Controls::computeMatricesFromInputs()
 	);
 }
 
-glm::mat4 Controls::getViewMatrix()
+glm::mat4 Camera::getViewMatrix()
 {
 	return m_ViewMatrix;
 }
 
-glm::mat4 Controls::getProjectionMatrix()
+glm::mat4 Camera::getProjectionMatrix()
 {
 	return m_ProjectionMatrix;
+}
+
+glm::vec3 Camera::getPosition()
+{
+	return m_position;
 }
 
 

@@ -15,10 +15,10 @@ private:
 
 	glm::vec4 m_color;
 
-	Model* m_model;
+	Model& m_model;
 
 public:
-	Body(glm::vec3 position, Model* model, glm::vec4 color, glm::vec3 initialVelocity, float mass, float surfaceGravity);
+	Body(glm::vec3 position, Model& model, glm::vec4 color, glm::vec3 initialVelocity, float mass, float surfaceGravity);
 
 	void SetPosition(glm::vec3 position);
 	void Translate(glm::vec3 translation);
@@ -26,7 +26,7 @@ public:
 	void UpdatePosition();
 
 	glm::vec3 GetPosition() const { return m_position; }
-	Model* GetModel() const { return m_model; }
+	Model& GetModel() const { return m_model; }
 	glm::vec4 GetColor() const { return m_color; }
 	float GetMass() const { return m_mass; }
 };

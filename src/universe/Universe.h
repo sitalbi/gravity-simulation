@@ -12,6 +12,8 @@ class Universe
 private:
 	glm::vec3 CalculateAccelaration(glm::vec3 position, Body* bodyToIgnore);
 
+	unsigned int emmisiveBodyId;
+
 public:
 	Universe();
 	~Universe();
@@ -21,4 +23,7 @@ public:
 	void AddBody(Body* body);
 
 	std::vector<Body*> bodies;
+
+	void SetEmissiveBody(Body* body);
+
 };

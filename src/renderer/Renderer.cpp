@@ -16,10 +16,10 @@ void Renderer::Draw(Body* body, glm::mat4 viewMat, Shader& shader) const
 	shader.Bind();
 	shader.SetUniform4f("u_Color", body->GetColor().x, body->GetColor().y, body->GetColor().z, body->GetColor().w);
 	glm::mat4 mvpMatrix = m_projectionMat * viewMat * modelMat;
-	// Set uniforms
+	
 	shader.SetUniformMat4f("u_MVP", mvpMatrix);
 	shader.SetUniformMat4f("u_M", modelMat);
-	body->GetModel()->Draw();
+	body->GetModel().Draw();
 }
 
 

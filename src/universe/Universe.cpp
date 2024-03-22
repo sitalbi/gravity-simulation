@@ -42,3 +42,9 @@ void Universe::AddBody(Body* body)
 {
 	bodies.push_back(body);
 }
+
+void Universe::SetEmissiveBody(Body* body)
+{
+	bodies.push_back(body);
+	emmisiveBodyId = bodies.size() - 1;
+}

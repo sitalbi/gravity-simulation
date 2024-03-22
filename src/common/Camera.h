@@ -6,14 +6,15 @@
 
 #define M_PI 3.14159265358979323846
 
-class Controls
+class Camera
 {
 public:
-	Controls(GLFWwindow* window, glm::mat4 ProjectionMatrix, glm::vec3 Position);
+	Camera(GLFWwindow* window, glm::mat4 ProjectionMatrix, glm::vec3 Position);
 
 	void computeMatricesFromInputs();
 	glm::mat4 getViewMatrix();
 	glm::mat4 getProjectionMatrix();
+	glm::vec3 getPosition();
 
 private:
 	GLFWwindow* m_window;
