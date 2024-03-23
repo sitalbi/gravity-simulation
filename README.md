@@ -1,5 +1,5 @@
 # gravity-simulation
-Gravity simulation created with OpenGL
+Gravity simulation created in C++ with OpenGL for rendering.
 
 ## To do 
 
