@@ -8,7 +8,6 @@ in vec4 Normal;
 uniform vec4 u_Color;
 uniform vec4 u_LightPosition;
 uniform vec4 u_LightColor;
-uniform vec3 u_viewPos;
 
 float specularStrength = 0.5;
 

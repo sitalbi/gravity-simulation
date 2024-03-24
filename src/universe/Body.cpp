@@ -1,7 +1,7 @@
 #include "Body.h"
 
-Body::Body(glm::vec3 position, Model& model, glm::vec4 color, glm::vec3 initialVelocity, float mass, float surfaceGravity)
-	: m_position(position), m_model(model), m_color(color), m_mass(mass), m_surfaceGravity(surfaceGravity), m_initialVelocity(initialVelocity)
+Body::Body(glm::vec3 position, Model& model, glm::vec4 color, glm::vec3 initialVelocity, float mass, float surfaceGravity, float radius)
+	: m_position(position), m_model(model), m_color(color), m_mass(mass), m_surfaceGravity(surfaceGravity), m_initialVelocity(initialVelocity), m_radius(radius)
 {
 	m_velocity = m_initialVelocity;
 }

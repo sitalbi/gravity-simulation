@@ -13,6 +13,9 @@ void Renderer::Draw(Model* model, glm::mat4 viewMat, glm::mat4 modelMat, Shader&
 void Renderer::Draw(Body* body, glm::mat4 viewMat, Shader& shader) const
 {
 	glm::mat4 modelMat = glm::translate(glm::mat4(1.0f), body->GetPosition());
+	// Scale the model using the radius of the body
+	modelMat = glm::scale(modelMat, glm::vec3(body->GetRadius()));
+
 	shader.Bind();
 	shader.SetUniform4f("u_Color", body->GetColor().x, body->GetColor().y, body->GetColor().z, body->GetColor().w);
 	glm::mat4 mvpMatrix = m_projectionMat * viewMat * modelMat;

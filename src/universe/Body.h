@@ -12,13 +12,14 @@ private:
 	glm::vec3 m_initialVelocity;
 	float m_mass;
 	float m_surfaceGravity;
+	float m_radius;
 
 	glm::vec4 m_color;
 
 	Model& m_model;
 
 public:
-	Body(glm::vec3 position, Model& model, glm::vec4 color, glm::vec3 initialVelocity, float mass, float surfaceGravity);
+	Body(glm::vec3 position, Model& model, glm::vec4 color, glm::vec3 initialVelocity, float mass, float surfaceGravity, float radius = 1.0f);
 
 	void SetPosition(glm::vec3 position);
 	void Translate(glm::vec3 translation);
@@ -29,4 +30,6 @@ public:
 	Model& GetModel() const { return m_model; }
 	glm::vec4 GetColor() const { return m_color; }
 	float GetMass() const { return m_mass; }
+	float GetSurfaceGravity() const { return m_surfaceGravity; }
+	float GetRadius() const { return m_radius; }
 };

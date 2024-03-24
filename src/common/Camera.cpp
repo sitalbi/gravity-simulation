@@ -1,9 +1,10 @@
 #include "Camera.h"
 
-Camera::Camera(GLFWwindow* window, glm::mat4 ProjectionMatrix, glm::vec3 Position)
+Camera::Camera(GLFWwindow* window, glm::mat4 ProjectionMatrix, glm::vec3 Position, glm::vec3 Direction)
 {
 	this->m_window = window;
 	m_position = Position;
+	m_direction = Direction;
 	m_horizontalAngle = 3.14f;
 	m_verticalAngle = 0.0f;
 	m_speed = 6.0f;
@@ -93,17 +94,16 @@ void Camera::computeMatricesFromInputs()
 
 glm::mat4 Camera::getViewMatrix()
 {
-	return m_ViewMatrix;
+	return glm::lookAt(
+		m_position,       
+		m_position + m_direction,
+		glm::vec3(0, 1, 0)  
+	);
 }
 
 glm::mat4 Camera::getProjectionMatrix()
 {
 	return m_ProjectionMatrix;
-}
-
-glm::vec3 Camera::getPosition()
-{
-	return m_position;
 }
 
 

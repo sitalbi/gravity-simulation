@@ -134,6 +134,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Dependencies\include\glm\detail\glm.cpp" />
+    <ClCompile Include="Dependencies\include\imgui\imgui.cpp" />
+    <ClCompile Include="Dependencies\include\imgui\imgui_demo.cpp" />
+    <ClCompile Include="Dependencies\include\imgui\imgui_draw.cpp" />
+    <ClCompile Include="Dependencies\include\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="Dependencies\include\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="Dependencies\include\imgui\imgui_tables.cpp" />
+    <ClCompile Include="Dependencies\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\common\Camera.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\renderer\models\baseModels\Cube.cpp" />
@@ -423,6 +430,7 @@
     <None Include="src\vendor\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\ressources\libraries\imgui-1.90.4\backends\imgui_impl_glfw.h" />
     <ClInclude Include="Dependencies\include\glm\common.hpp" />
     <ClInclude Include="Dependencies\include\glm\detail\compute_common.hpp" />
     <ClInclude Include="Dependencies\include\glm\detail\compute_vector_relational.hpp" />
@@ -667,6 +675,15 @@
     <ClInclude Include="Dependencies\include\glm\vec3.hpp" />
     <ClInclude Include="Dependencies\include\glm\vec4.hpp" />
     <ClInclude Include="Dependencies\include\glm\vector_relational.hpp" />
+    <ClInclude Include="Dependencies\include\imgui\imconfig.h" />
+    <ClInclude Include="Dependencies\include\imgui\imgui.h" />
+    <ClInclude Include="Dependencies\include\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="Dependencies\include\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="Dependencies\include\imgui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="Dependencies\include\imgui\imgui_internal.h" />
+    <ClInclude Include="Dependencies\include\imgui\imstb_rectpack.h" />
+    <ClInclude Include="Dependencies\include\imgui\imstb_textedit.h" />
+    <ClInclude Include="Dependencies\include\imgui\imstb_truetype.h" />
     <ClInclude Include="src\common\Camera.h" />
     <ClInclude Include="src\renderer\models\baseModels\Cube.h" />
     <ClInclude Include="src\renderer\models\baseModels\Sphere.h" />

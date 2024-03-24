@@ -9,19 +9,19 @@
 class Camera
 {
 public:
-	Camera(GLFWwindow* window, glm::mat4 ProjectionMatrix, glm::vec3 Position);
+	Camera(GLFWwindow* window, glm::mat4 ProjectionMatrix, glm::vec3 Position, glm::vec3 Direction);
 
 	void computeMatricesFromInputs();
 	glm::mat4 getViewMatrix();
 	glm::mat4 getProjectionMatrix();
-	glm::vec3 getPosition();
+	glm::vec3 m_position;
+	glm::vec3 m_direction;
 
 private:
 	GLFWwindow* m_window;
 
 	glm::mat4 m_ViewMatrix;
 	glm::mat4 m_ProjectionMatrix;
-	glm::vec3 m_position;
 
 	float m_horizontalAngle;
 	float m_verticalAngle;

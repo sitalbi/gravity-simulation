@@ -8,6 +8,10 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 #include "renderer/Shader.h"
 #include "renderer/Renderer.h"
 #include "renderer/models/baseModels/Cube.h"
@@ -18,8 +22,8 @@
 #include "common/Camera.h"
 #include "universe/Universe.h"
 
-#define width 1280
-#define height 720
+#define width 1920
+#define height 1080
 
 void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
@@ -62,6 +66,18 @@ int main(void)
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(MessageCallback, nullptr);
 
+    // Setup ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+    ImGui_ImplOpenGL3_Init();
+
 
     // Create cube
     Cube cube;
@@ -69,31 +85,21 @@ int main(void)
     Sphere sphere(1.0f, 20);
 
     // Projection matrix
-    glm::mat4 Projection = glm::perspective(glm::radians(30.0f), (float)width / (float)height, 0.1f, 100.0f);
-    glm::mat4 View = glm::lookAt(
-		glm::vec3(1, 0, 100), // Camera position in World Space
-		glm::vec3(0, 0, 0), // Looks at the origin
-		glm::vec3(0, 1, 0)  // Head is up
-	);
+    glm::mat4 Projection = glm::perspective(glm::radians(30.0f), (float)width / (float)height, 0.1f, 500.0f);
 
     // Create renderer
     Renderer renderer(Projection);
 
     // Create Camera
-    Camera camera(window, Projection, glm::vec3(1, 0, 10));
+    Camera camera(window, Projection, glm::vec3(0, 0, 20), glm::vec3(0, 0, -1));
 
-    // Create bodies with a cube as model
-    Body body1(glm::vec3(20.0f, 0.0f, 0.0f), sphere, glm::vec4(0.0f, 0.5f, 0.5f, 1.0f), glm::vec3(0.0f, 0.055f, 0.0f), 25.0f, 0.4f);
-    //Body body2(glm::vec3(15.0f, 0.0f, 0.0f), &sphere, glm::vec4(0.5f, 0.0f, 0.5f, 1.0f), glm::vec3(0.0f, 0.075f, 0.0f), 100.0f, 2.0f);
-    Body star(glm::vec3(0.0f, 0.0f, 0.0f), sphere, glm::vec4(0.5f, 0.5f, 0.0f, 1.0f), glm::vec3(0.0f, 0.00f, 0.0f), 1000.0f, 100.0f);
-    //Body body2(glm::vec3(1.0f, 1.0f, 0.0f), &sphere, glm::vec4(0.5f, 0.0f, 0.5f, 1.0f));
-    //Body body3(glm::vec3(3.0f, 2.0f, 1.0f), &sphere, glm::vec4(0.5f, 0.5f, 0.0f, 1.0f));
+    // Create bodies with a sphere as model
+    Body body1(glm::vec3(20.0f, 0.0f, 0.0f), sphere, glm::vec4(0.0f, 0.5f, 0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 0.055f), 25.0f, 0.4f);
+    Body star(glm::vec3(0.0f, 0.0f, 0.0f), sphere, glm::vec4(0.5f, 0.5f, 0.0f, 1.0f), glm::vec3(0.0f, 0.00f, 0.0f), 1000.0f, 100.0f,2.0f);
 
     // Create universe and add bodies
     Universe universe;
-    
     universe.AddBody(&body1);
-    //universe.AddBody(&body2);
     universe.SetEmissiveBody(&star);
 
     // Create, compile and bind shader
@@ -107,10 +113,6 @@ int main(void)
         std::cerr << "Shader Creation Error: " << shaderErr << std::endl;
         return -1;
     }
-
-    // Set light position vector
-    glm::vec3 lightPos = glm::vec3(0.0f, 5.0f, 10.0f);
-    glm::vec3 lightDirection = glm::normalize(glm::vec3(1.0f, 1.0f, -1.0f));
     
     // Set Fragment shader uniforms
     defaultShader.Bind();
@@ -130,23 +132,38 @@ int main(void)
     {
         renderer.Clear();
 
-        camera.computeMatricesFromInputs();
-        View = camera.getViewMatrix();
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+        ImGui::Text("Application average  %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        
+        // Edit the camera position in world space using ImGui
+        ImGui::Text("Camera Position");
+        ImGui::SliderFloat("X", &camera.m_position.x, -200.0f, 200.0f);
+        ImGui::SliderFloat("Y", &camera.m_position.y, -200.0f, 200.0f);
+        ImGui::SliderFloat("Z", &camera.m_position.z, -200.0f, 200.0f);
+
+        // Edit the camera direction in world space using ImGui
+        ImGui::Text("Camera Direction");
+        ImGui::SliderFloat("Direction X", &camera.m_direction.x, -1.0f, 1.0f);
+        ImGui::SliderFloat("Direction Y", &camera.m_direction.y, -1.0f, 1.0f);
+        ImGui::SliderFloat("Direction Z", &camera.m_direction.z, -1.0f, 1.0f);
 
         universe.Update();
 
-        defaultShader.Bind();
-        defaultShader.SetUniform3f("u_viewPos", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
+        renderer.Draw(&body1, camera.getViewMatrix(), defaultShader);
+        renderer.Draw(&star, camera.getViewMatrix(), starShader);
 
-        renderer.Draw(&body1, View, defaultShader);
-        //renderer.Draw(&body2, View, shader);
-        renderer.Draw(&star, View, starShader);
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
 
         /* Poll for and process events */
         glfwPollEvents();
+        
 
         // Check for OpenGL errors after each frame
         GLenum frameErr = glGetError();
@@ -158,5 +175,8 @@ int main(void)
     }
 
     glfwTerminate();
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
     return 0;
 }
