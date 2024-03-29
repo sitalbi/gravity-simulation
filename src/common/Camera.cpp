@@ -1,109 +1,103 @@
 #include "Camera.h"
 
-Camera::Camera(GLFWwindow* window, glm::mat4 ProjectionMatrix, glm::vec3 Position, glm::vec3 Direction)
+Camera::Camera(GLFWwindow* window, glm::mat4 ProjectionMatrix, glm::vec3 Position, glm::vec3 lookAt, int width, int height)
 {
 	this->m_window = window;
 	m_position = Position;
-	m_direction = Direction;
+	m_lookAt = lookAt;
 	m_horizontalAngle = 3.14f;
 	m_verticalAngle = 0.0f;
 	m_speed = 6.0f;
 	m_mouseSpeed = 0.04f;
 	m_xpos = 0;
 	m_ypos = 0;
-	m_width = 1280;
-	m_height = 720;
+	m_width = width;
+	m_height = height;
 
 	m_deltaTime = 0.0f;
 	m_lastTime = 0.0f;
 	m_currentTime = 0.0f;
 
 	m_ProjectionMatrix = ProjectionMatrix;
-}
-
-void Camera::computeMatricesFromInputs()
-{
-	m_currentTime = glfwGetTime();
-	m_deltaTime = float(m_currentTime - m_lastTime);
-	m_lastTime = m_currentTime;
-
-	glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-	glfwGetCursorPos(m_window, &m_xpos, &m_ypos);
-	glfwSetCursorPos(m_window, m_width/ 2, m_height/ 2);
-
-	//Compute new orientation
-	m_horizontalAngle += m_mouseSpeed * m_deltaTime * float(m_width / 2 - m_xpos);
-	m_verticalAngle += m_mouseSpeed * m_deltaTime * float(m_height / 2 - m_ypos);
-
-	// Limit vertical angle
-	m_verticalAngle = fmod(m_verticalAngle, M_PI);
-
-	// Limit horizontal angle
-	m_horizontalAngle = fmod(m_horizontalAngle, M_PI * 2);
-
-	//Direction : Spherical coordinates to Cartesian coordinates conversion
-	glm::vec3 direction(
-		cos(m_verticalAngle) * sin(m_horizontalAngle),
-		sin(m_verticalAngle),
-		cos(m_verticalAngle) * cos(m_horizontalAngle)
-	);
-
-	//Right vector
-	glm::vec3 right(
-		sin(m_horizontalAngle - 3.14f / 2.0f),
-		0,
-		cos(m_horizontalAngle - 3.14f / 2.0f)
-	);
-
-	//Up vector
-	glm::vec3 up = glm::cross(right, direction);
-
-
-	// Move forward
-	if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS) {
-		m_position += direction * m_deltaTime * m_speed;
-	}
-	// Move backward
-	if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS) {
-		m_position -= direction * m_deltaTime * m_speed;
-	}
-	// Move right
-	if (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS) {
-		m_position += right * m_deltaTime * m_speed;
-	}
-	// Move left
-	if (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS) {
-		m_position -= right * m_deltaTime * m_speed;
-	}
-	// Move up
-	if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-		m_position += up * m_deltaTime * m_speed;
-	}
-	// Move down
-	if (glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-		m_position -= up * m_deltaTime * m_speed;
-	}
-
-	// Camera (View) matrix
 	m_ViewMatrix = glm::lookAt(
 		m_position,       
-		m_position + direction, 
-		up 
-	);
-}
-
-glm::mat4 Camera::getViewMatrix()
-{
-	return glm::lookAt(
-		m_position,       
-		m_position + m_direction,
+		m_lookAt, 
 		glm::vec3(0, 1, 0)  
 	);
 }
 
-glm::mat4 Camera::getProjectionMatrix()
+/*
+* Rotate the camera based on the mouse position (arcball camera)
+*/
+void Camera::RotateCamera(glm::vec2 mousePos)
+{
+	glm::vec3 upVector = glm::vec3(0, 1, 0);
+
+	glm::vec4 pivot = glm::vec4(m_lookAt, 1.0f);
+	glm::vec4 position = glm::vec4(m_position, 1.0f);
+
+	if (!isDragging) {
+		isDragging = true;
+		lastDragPos = mousePos;
+	}
+
+	// Calculate the amount of rotation given the mouse movement.
+	float deltaAngleX = (glm::two_pi<float>() / m_width);
+	float deltaAngleY = (glm::two_pi<float>() / m_height);
+	float xAngle = (float)(lastDragPos.x - mousePos.x) * deltaAngleX;
+	float yAngle = (float)(lastDragPos.y - mousePos.y) * deltaAngleY;
+
+	// Extra step to handle the problem when the camera direction is the same as the up vector
+	float cosAngle = glm::dot(GetViewDir(), upVector);
+	if (cosAngle * glm::sign(yAngle) > 0.99f) {
+		yAngle = 0;
+	}
+
+	// Rotation on first axis
+	glm::mat4 rotationMatrixX(1.0f);
+	rotationMatrixX = glm::rotate(rotationMatrixX, xAngle, upVector);
+	position = (rotationMatrixX * (position - pivot)) + pivot;
+
+	// Rotation on second axis
+	glm::mat4 rotationMatrixY(1.0f);
+	rotationMatrixY = glm::rotate(rotationMatrixY, yAngle, GetRightVector());
+	m_position = (rotationMatrixY * (position - pivot)) + pivot;
+
+	lastDragPos = mousePos;
+}
+
+glm::vec3 Camera::GetViewDir() const
+{
+	return -glm::transpose(m_ViewMatrix)[2]; 
+}
+
+glm::vec3 Camera::GetRightVector() const
+{
+	return glm::transpose(m_ViewMatrix)[0];
+}
+
+void Camera::ResetDrag()
+{
+	isDragging = false;
+}
+
+glm::mat4 Camera::GetViewMatrix() const
+{
+	return glm::lookAt(
+		m_position,       
+		m_lookAt, 
+		glm::vec3(0, 1, 0)  
+	);
+}
+
+glm::mat4 Camera::GetProjectionMatrix() const
 {
 	return m_ProjectionMatrix;
+}
+
+void Camera::SetLookAt(glm::vec3 lookAt)
+{
+	m_lookAt = lookAt;
 }
 
 

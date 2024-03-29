@@ -17,7 +17,7 @@ void main()
     vec4 l = normalize(u_LightPosition - w_Position);  
 
     float diff = max(dot(n, l), 0.0);
-    vec4 diffuseColor = diff * u_LightColor;
+    vec4 diffuseColor = diff * u_LightColor * 2;
 
     vec4 ambientColor = vec4(0.1, 0.1, 0.1, 1) * u_LightColor;
 

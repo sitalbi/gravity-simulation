@@ -888,6 +888,8 @@
     </None>
     <None Include="res\shaders\star\VertexShader.glsl" />
     <None Include="res\shaders\star\FragmentShader.glsl" />
+    <None Include="res\shaders\postProcessing\FragmentShader.glsl" />
+    <None Include="res\shaders\postProcessing\VertexShader.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vendor\glm\detail\_features.hpp">

@@ -46,5 +46,21 @@ void Universe::AddBody(Body* body)
 void Universe::SetEmissiveBody(Body* body)
 {
 	bodies.push_back(body);
-	emmisiveBodyId = bodies.size() - 1;
+	m_emmisiveBodyId = bodies.size() - 1;
+	m_focusedBodyId = m_emmisiveBodyId;
+}
+
+void Universe::SetFocusedBody(unsigned int bodyId)
+{
+	m_focusedBodyId = bodyId;
+}
+
+unsigned int Universe::GetEmissiveBodyId() const
+{
+	return m_emmisiveBodyId;
+}
+
+unsigned int Universe::GetFocusedBodyId() const
+{
+	return m_focusedBodyId;
 }

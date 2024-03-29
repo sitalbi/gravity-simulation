@@ -9,13 +9,22 @@
 class Camera
 {
 public:
-	Camera(GLFWwindow* window, glm::mat4 ProjectionMatrix, glm::vec3 Position, glm::vec3 Direction);
+	Camera(GLFWwindow* window, glm::mat4 ProjectionMatrix, glm::vec3 Position, glm::vec3 lookAt, int width, int height);
+	
+	void RotateCamera(glm::vec2 mousePos);
 
-	void computeMatricesFromInputs();
-	glm::mat4 getViewMatrix();
-	glm::mat4 getProjectionMatrix();
+	glm::vec3 GetViewDir() const;
+	glm::vec3 GetRightVector() const;
+	glm::mat4 GetViewMatrix() const;
+	glm::mat4 GetProjectionMatrix() const;
+
+	void SetLookAt(glm::vec3 lookAt);
+
+	void ResetDrag();
+
 	glm::vec3 m_position;
-	glm::vec3 m_direction;
+	glm::vec3 m_lookAt;
+
 
 private:
 	GLFWwindow* m_window;
@@ -37,4 +46,8 @@ private:
 	float m_deltaTime;
 	float m_lastTime;
 	double m_currentTime;
+
+	bool isDragging;
+
+	glm::vec2 lastDragPos;
 };

@@ -288,6 +288,8 @@
     <None Include="Dependencies\include\glm\gtx\wrap.inl" />
     <None Include="res\shaders\default\FragmentShader.glsl" />
     <None Include="res\shaders\default\VertexShader.glsl" />
+    <None Include="res\shaders\postProcessing\FragmentShader.glsl" />
+    <None Include="res\shaders\postProcessing\VertexShader.glsl" />
     <None Include="res\shaders\star\FragmentShader.glsl" />
     <None Include="res\shaders\star\VertexShader.glsl" />
     <None Include="src\vendor\glm\detail\func_common.inl" />

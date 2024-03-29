@@ -25,6 +25,7 @@
 #define width 1920
 #define height 1080
 
+
 void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
     std::cerr << "GL CALLBACK: " << (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "") << " type = 0x" << std::hex << type << ", severity = 0x" << std::hex << severity << ", message = " << message << std::endl;
@@ -90,22 +91,25 @@ int main(void)
     // Create renderer
     Renderer renderer(Projection);
 
-    // Create Camera
-    Camera camera(window, Projection, glm::vec3(0, 0, 20), glm::vec3(0, 0, -1));
 
     // Create bodies with a sphere as model
     Body body1(glm::vec3(20.0f, 0.0f, 0.0f), sphere, glm::vec4(0.0f, 0.5f, 0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 0.055f), 25.0f, 0.4f);
+    Body body2(glm::vec3(30.0f, 0.0f, 0.0f), sphere, glm::vec4(0.5f, 0.0f, 0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 0.055f), 20.0f, 0.5f);
     Body star(glm::vec3(0.0f, 0.0f, 0.0f), sphere, glm::vec4(0.5f, 0.5f, 0.0f, 1.0f), glm::vec3(0.0f, 0.00f, 0.0f), 1000.0f, 100.0f,2.0f);
+
+    // Create Camera
+    Camera camera(window, Projection, glm::vec3(0, 0, 50), star.GetPosition(), width, height);
 
     // Create universe and add bodies
     Universe universe;
     universe.AddBody(&body1);
+    universe.AddBody(&body2);
     universe.SetEmissiveBody(&star);
 
     // Create, compile and bind shader
     Shader starShader("res/shaders/star/VertexShader.glsl", "res/shaders/star/FragmentShader.glsl");
     Shader defaultShader("res/shaders/default/VertexShader.glsl", "res/shaders/default/FragmentShader.glsl");
-
+    
     // Check for OpenGL errors after shader creation
     GLenum shaderErr = glGetError();
     if (shaderErr != GL_NO_ERROR)
@@ -114,7 +118,7 @@ int main(void)
         return -1;
     }
     
-    // Set Fragment shader uniforms
+    // Set shaders uniforms
     defaultShader.Bind();
     defaultShader.SetUniform4f("u_LightColor", star.GetColor().x, star.GetColor().y, star.GetColor().z, star.GetColor().w);
     defaultShader.SetUniform4f("u_LightPosition",star.GetPosition().x, star.GetPosition().y, star.GetPosition().z, 1.0f);
@@ -125,7 +129,6 @@ int main(void)
 
     // Cull triangles which normal is not towards the camera
     glEnable(GL_CULL_FACE);
-
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -138,22 +141,36 @@ int main(void)
         ImGui::NewFrame();
         ImGui::Text("Application average  %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         
-        // Edit the camera position in world space using ImGui
-        ImGui::Text("Camera Position");
-        ImGui::SliderFloat("X", &camera.m_position.x, -200.0f, 200.0f);
-        ImGui::SliderFloat("Y", &camera.m_position.y, -200.0f, 200.0f);
-        ImGui::SliderFloat("Z", &camera.m_position.z, -200.0f, 200.0f);
-
-        // Edit the camera direction in world space using ImGui
-        ImGui::Text("Camera Direction");
-        ImGui::SliderFloat("Direction X", &camera.m_direction.x, -1.0f, 1.0f);
-        ImGui::SliderFloat("Direction Y", &camera.m_direction.y, -1.0f, 1.0f);
-        ImGui::SliderFloat("Direction Z", &camera.m_direction.z, -1.0f, 1.0f);
-
+        // Update universe's bodies
         universe.Update();
 
-        renderer.Draw(&body1, camera.getViewMatrix(), defaultShader);
-        renderer.Draw(&star, camera.getViewMatrix(), starShader);
+        // Test if mouse pressed
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+        {
+			double xpos, ypos;
+			glfwGetCursorPos(window, &xpos, &ypos);
+			camera.RotateCamera(glm::vec2(xpos, ypos));
+        }
+        else {
+			camera.ResetDrag();
+		}
+
+        // Look at focused body
+        Body* focusedBody = universe.bodies[universe.GetFocusedBodyId()];
+        camera.SetLookAt(focusedBody->GetPosition());
+
+        // Draw bodies
+        for (unsigned int i = 0; i < universe.bodies.size(); i++)
+        {
+            if (i == universe.GetEmissiveBodyId())
+            {
+                renderer.Draw(universe.bodies[i], camera.GetViewMatrix(), starShader);
+            }
+            else
+            {
+                renderer.Draw(universe.bodies[i], camera.GetViewMatrix(), defaultShader);
+            }
+		}
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
