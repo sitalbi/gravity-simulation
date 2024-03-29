@@ -25,6 +25,8 @@
 #define width 1920
 #define height 1080
 
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+
 
 void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
@@ -44,6 +46,7 @@ int main(void)
         std::cerr << "GLFW Error: " << description << std::endl;
         });
 
+
     /* Create a windowed mode window and its OpenGL context */
     window = glfwCreateWindow(width, height, "Gravity simulation", NULL, NULL);
     if (!window)
@@ -62,6 +65,8 @@ int main(void)
         std::cerr << "GLEW Error: " << glewGetErrorString(err) << std::endl;
         return -1;
     }
+
+    glfwSetScrollCallback(window, scroll_callback);
 
     /* Enable OpenGL debug output */
     glEnable(GL_DEBUG_OUTPUT);
@@ -93,12 +98,14 @@ int main(void)
 
 
     // Create bodies with a sphere as model
-    Body body1(glm::vec3(20.0f, 0.0f, 0.0f), sphere, glm::vec4(0.0f, 0.5f, 0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 0.055f), 25.0f, 0.4f);
-    Body body2(glm::vec3(30.0f, 0.0f, 0.0f), sphere, glm::vec4(0.5f, 0.0f, 0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 0.055f), 20.0f, 0.5f);
+    Body body1(glm::vec3(20.0f, 0.0f, 0.0f), sphere, glm::vec4(0.0f, 0.5f, 0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 0.055f), 15.0f, 0.4f, 0.5f);
+    Body body2(glm::vec3(30.0f, 0.0f, 0.0f), sphere, glm::vec4(0.5f, 0.0f, 0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 0.055f), 10.0f, 0.5f, 0.35f);
     Body star(glm::vec3(0.0f, 0.0f, 0.0f), sphere, glm::vec4(0.5f, 0.5f, 0.0f, 1.0f), glm::vec3(0.0f, 0.00f, 0.0f), 1000.0f, 100.0f,2.0f);
 
     // Create Camera
     Camera camera(window, Projection, glm::vec3(0, 0, 50), star.GetPosition(), width, height);
+
+    glfwSetWindowUserPointer(window, &camera);
 
     // Create universe and add bodies
     Universe universe;
@@ -140,24 +147,46 @@ int main(void)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         ImGui::Text("Application average  %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-        
+
+        // Loop to create checkboxes for each body in the universe
+        for (unsigned int i = 0; i < universe.bodies.size(); i++)
+        {
+            // Create a unique label for each checkbox
+            std::string checkboxLabel = "Body " + std::to_string(i + 1);
+
+            // Check if the checkbox is checked
+            bool checked = (universe.GetFocusedBodyId() == i);
+
+            // Create the checkbox and set its state
+            if (ImGui::Checkbox(checkboxLabel.c_str(), &checked))
+            {
+                // If the checkbox state changed, update the focused body
+                if (checked)
+                {
+                    universe.SetFocusedBody(i);
+                }
+            }
+        }
+
         // Update universe's bodies
         universe.Update();
 
         // Test if mouse pressed
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
         {
-			double xpos, ypos;
-			glfwGetCursorPos(window, &xpos, &ypos);
-			camera.RotateCamera(glm::vec2(xpos, ypos));
+            double xpos, ypos;
+            glfwGetCursorPos(window, &xpos, &ypos);
+            camera.RotateCamera(glm::vec2(xpos, ypos));
         }
         else {
-			camera.ResetDrag();
-		}
+            camera.ResetDrag();
+        }
+
+        Body* focusedBody = universe.bodies[universe.GetFocusedBodyId()];
 
         // Look at focused body
-        Body* focusedBody = universe.bodies[universe.GetFocusedBodyId()];
         camera.SetLookAt(focusedBody->GetPosition());
+        camera.m_position = focusedBody->GetPosition() + camera.m_distance * glm::normalize(focusedBody->GetPosition() - camera.GetOrbitPosition());
 
         // Draw bodies
         for (unsigned int i = 0; i < universe.bodies.size(); i++)
@@ -196,4 +225,12 @@ int main(void)
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
     return 0;
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    Camera* camera = (Camera*)glfwGetWindowUserPointer(window);
+    if (camera->m_distance - yoffset > 1.0f) {
+        camera->m_distance -= yoffset;
+    }
 }

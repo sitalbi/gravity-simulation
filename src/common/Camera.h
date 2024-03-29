@@ -18,12 +18,15 @@ public:
 	glm::mat4 GetViewMatrix() const;
 	glm::mat4 GetProjectionMatrix() const;
 
+	glm::vec3 GetOrbitPosition() const;
+
 	void SetLookAt(glm::vec3 lookAt);
 
 	void ResetDrag();
 
 	glm::vec3 m_position;
 	glm::vec3 m_lookAt;
+	float m_distance = 50.0f;
 
 
 private:
@@ -31,6 +34,8 @@ private:
 
 	glm::mat4 m_ViewMatrix;
 	glm::mat4 m_ProjectionMatrix;
+
+	glm::vec3 m_orbitPosition;
 
 	float m_horizontalAngle;
 	float m_verticalAngle;

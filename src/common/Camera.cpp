@@ -4,6 +4,7 @@ Camera::Camera(GLFWwindow* window, glm::mat4 ProjectionMatrix, glm::vec3 Positio
 {
 	this->m_window = window;
 	m_position = Position;
+	m_orbitPosition = Position;
 	m_lookAt = lookAt;
 	m_horizontalAngle = 3.14f;
 	m_verticalAngle = 0.0f;
@@ -34,7 +35,7 @@ void Camera::RotateCamera(glm::vec2 mousePos)
 	glm::vec3 upVector = glm::vec3(0, 1, 0);
 
 	glm::vec4 pivot = glm::vec4(m_lookAt, 1.0f);
-	glm::vec4 position = glm::vec4(m_position, 1.0f);
+	glm::vec4 position = glm::vec4(m_orbitPosition, 1.0f);
 
 	if (!isDragging) {
 		isDragging = true;
@@ -61,7 +62,7 @@ void Camera::RotateCamera(glm::vec2 mousePos)
 	// Rotation on second axis
 	glm::mat4 rotationMatrixY(1.0f);
 	rotationMatrixY = glm::rotate(rotationMatrixY, yAngle, GetRightVector());
-	m_position = (rotationMatrixY * (position - pivot)) + pivot;
+	m_orbitPosition = (rotationMatrixY * (position - pivot)) + pivot;
 
 	lastDragPos = mousePos;
 }
@@ -93,6 +94,11 @@ glm::mat4 Camera::GetViewMatrix() const
 glm::mat4 Camera::GetProjectionMatrix() const
 {
 	return m_ProjectionMatrix;
+}
+
+glm::vec3 Camera::GetOrbitPosition() const
+{
+	return m_orbitPosition;
 }
 
 void Camera::SetLookAt(glm::vec3 lookAt)
