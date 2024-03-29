@@ -3,6 +3,6 @@ Gravity simulation created in C++ with OpenGL for rendering.
 
 ## To do 
 
-- Frame Buffer for post-processing (bloom effect)
+- Create the skybox
 - Shadow Mapping
 - Verlet integration 
