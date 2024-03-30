@@ -6,3 +6,4 @@ Gravity simulation created in C++ with OpenGL for rendering.
 - Cleaning + Refactoring
 - Shadow Mapping
 - Verlet integration 
+- Possibility to create/save/load scenes
