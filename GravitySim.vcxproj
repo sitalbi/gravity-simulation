@@ -290,6 +290,8 @@
     <None Include="res\shaders\default\VertexShader.glsl" />
     <None Include="res\shaders\postProcessing\FragmentShader.glsl" />
     <None Include="res\shaders\postProcessing\VertexShader.glsl" />
+    <None Include="res\shaders\skybox\FragmentShader.glsl" />
+    <None Include="res\shaders\skybox\VertexShader.glsl" />
     <None Include="res\shaders\star\FragmentShader.glsl" />
     <None Include="res\shaders\star\VertexShader.glsl" />
     <None Include="src\vendor\glm\detail\func_common.inl" />
@@ -686,6 +688,7 @@
     <ClInclude Include="Dependencies\include\imgui\imstb_rectpack.h" />
     <ClInclude Include="Dependencies\include\imgui\imstb_textedit.h" />
     <ClInclude Include="Dependencies\include\imgui\imstb_truetype.h" />
+    <ClInclude Include="Dependencies\include\stb\stb_image.h" />
     <ClInclude Include="src\common\Camera.h" />
     <ClInclude Include="src\renderer\models\baseModels\Cube.h" />
     <ClInclude Include="src\renderer\models\baseModels\Sphere.h" />
@@ -982,6 +985,14 @@
     <ClInclude Include="src\vendor\glm\vec3.hpp" />
     <ClInclude Include="src\vendor\glm\vec4.hpp" />
     <ClInclude Include="src\vendor\glm\vector_relational.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\textures\skybox\back.jpg" />
+    <Image Include="res\textures\skybox\bottom.jpg" />
+    <Image Include="res\textures\skybox\front.jpg" />
+    <Image Include="res\textures\skybox\left.jpg" />
+    <Image Include="res\textures\skybox\right.jpg" />
+    <Image Include="res\textures\skybox\top.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

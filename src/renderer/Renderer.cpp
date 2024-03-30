@@ -21,7 +21,6 @@ void Renderer::Draw(Body* body, glm::mat4 viewMat, Shader& shader) const
 	glm::mat4 mvpMatrix = m_projectionMat * viewMat * modelMat;
 	
 	shader.SetUniformMat4f("u_MVP", mvpMatrix);
-	shader.SetUniformMat4f("u_M", modelMat);
 	body->GetModel().Draw();
 }
 
