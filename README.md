@@ -1,6 +1,10 @@
 # gravity-simulation
 Gravity simulation created in C++ with OpenGL for rendering.
 
+## Visuals
+![Gravitydemo Gif](https://simono.fr/gravity.gif)
+
+
 ## To do 
 
 - Cleaning + Refactoring
