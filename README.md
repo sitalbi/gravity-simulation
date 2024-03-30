@@ -3,6 +3,6 @@ Gravity simulation created in C++ with OpenGL for rendering.
 
 ## To do 
 
-- Create the skybox
+- Cleaning + Refactoring
 - Shadow Mapping
 - Verlet integration 
