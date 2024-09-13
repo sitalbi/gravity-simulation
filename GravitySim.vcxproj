@@ -141,8 +141,10 @@
     <ClCompile Include="Dependencies\include\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="Dependencies\include\imgui\imgui_tables.cpp" />
     <ClCompile Include="Dependencies\include\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\renderer\Skybox.cpp" />
     <ClCompile Include="src\common\Camera.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\renderer\Framebuffer.cpp" />
     <ClCompile Include="src\renderer\models\baseModels\Cube.cpp" />
     <ClCompile Include="src\renderer\models\baseModels\Sphere.cpp" />
     <ClCompile Include="src\renderer\models\Model.cpp" />
@@ -689,6 +691,8 @@
     <ClInclude Include="Dependencies\include\imgui\imstb_textedit.h" />
     <ClInclude Include="Dependencies\include\imgui\imstb_truetype.h" />
     <ClInclude Include="Dependencies\include\stb\stb_image.h" />
+    <ClInclude Include="src\renderer\Skybox.h" />
+    <ClInclude Include="src\renderer\Framebuffer.h" />
     <ClInclude Include="src\common\Camera.h" />
     <ClInclude Include="src\renderer\models\baseModels\Cube.h" />
     <ClInclude Include="src\renderer\models\baseModels\Sphere.h" />

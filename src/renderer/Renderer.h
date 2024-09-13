@@ -11,12 +11,22 @@ class Renderer
 {
 private:
 	glm::mat4 m_projectionMat;
+	unsigned int m_quadVAO, m_quadVBO;
 
 	void Draw(Model* model, glm::mat4 viewMat, glm::mat4 modelMat, Shader& shader) const;
+	
+	void InitQuad();
+
 
 public: 
-	Renderer(glm::mat4 projectionMatrix) : m_projectionMat(projectionMatrix) {}
+	Renderer(glm::mat4 projectionMatrix) : m_projectionMat(projectionMatrix) {
+		InitQuad();
+	}
+	~Renderer();
 
 	void Draw(Body* body, glm::mat4 viewMat, Shader& shader) const;
+	void DrawQuad() const;
 	void Clear() const;
+
+
 };

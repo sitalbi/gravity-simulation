@@ -15,6 +15,8 @@
 
 #include "renderer/Shader.h"
 #include "renderer/Renderer.h"
+#include "renderer/Framebuffer.h"
+#include "renderer/Skybox.h"
 #include "renderer/models/baseModels/Cube.h"
 #include "renderer/models/baseModels/Sphere.h"
 
@@ -30,53 +32,6 @@
 #define height 1080
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-
-unsigned int loadCubemap(std::vector<std::string> faces);
-
-std::vector<float> skyboxVertices = {
-    // positions          
-    -1.0f,  1.0f, -1.0f,
-    -1.0f, -1.0f, -1.0f,
-     1.0f, -1.0f, -1.0f,
-     1.0f, -1.0f, -1.0f,
-     1.0f,  1.0f, -1.0f,
-    -1.0f,  1.0f, -1.0f,
-
-    -1.0f, -1.0f,  1.0f,
-    -1.0f, -1.0f, -1.0f,
-    -1.0f,  1.0f, -1.0f,
-    -1.0f,  1.0f, -1.0f,
-    -1.0f,  1.0f,  1.0f,
-    -1.0f, -1.0f,  1.0f,
-
-     1.0f, -1.0f, -1.0f,
-     1.0f, -1.0f,  1.0f,
-     1.0f,  1.0f,  1.0f,
-     1.0f,  1.0f,  1.0f,
-     1.0f,  1.0f, -1.0f,
-     1.0f, -1.0f, -1.0f,
-
-    -1.0f, -1.0f,  1.0f,
-    -1.0f,  1.0f,  1.0f,
-     1.0f,  1.0f,  1.0f,
-     1.0f,  1.0f,  1.0f,
-     1.0f, -1.0f,  1.0f,
-    -1.0f, -1.0f,  1.0f,
-
-    -1.0f,  1.0f, -1.0f,
-     1.0f,  1.0f, -1.0f,
-     1.0f,  1.0f,  1.0f,
-     1.0f,  1.0f,  1.0f,
-    -1.0f,  1.0f,  1.0f,
-    -1.0f,  1.0f, -1.0f,
-
-    -1.0f, -1.0f, -1.0f,
-    -1.0f, -1.0f,  1.0f,
-     1.0f, -1.0f, -1.0f,
-     1.0f, -1.0f, -1.0f,
-    -1.0f, -1.0f,  1.0f,
-     1.0f, -1.0f,  1.0f
-};
 
 std::vector<std::string> faces
 {
@@ -95,11 +50,6 @@ int main(void)
     /* Initialize the library */
     if (!glfwInit())
         return -1;
-
-    /* Set GLFW error callback */
-    glfwSetErrorCallback([](int error, const char* description) {
-        std::cerr << "GLFW Error: " << description << std::endl;
-        });
 
 
     /* Create a windowed mode window and its OpenGL context */
@@ -138,18 +88,8 @@ int main(void)
     ImGui_ImplGlfw_InitForOpenGL(window, true); // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
     ImGui_ImplOpenGL3_Init();
 
-    
-    unsigned int cubemapTexture = loadCubemap(faces);
-
-    unsigned int skyboxVAO, skyboxVBO;
-    glGenVertexArrays(1, &skyboxVAO);
-    glGenBuffers(1, &skyboxVBO);
-    glBindVertexArray(skyboxVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-    glBufferData(GL_ARRAY_BUFFER, skyboxVertices.size() * sizeof(float), &skyboxVertices[0], GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
+    // Create skybox
+    Skybox skybox(faces);
 
     // Create cube
     Cube cube;
@@ -186,6 +126,7 @@ int main(void)
     Shader starShader("res/shaders/star/VertexShader.glsl", "res/shaders/star/FragmentShader.glsl");
     Shader defaultShader("res/shaders/default/VertexShader.glsl", "res/shaders/default/FragmentShader.glsl");
     Shader skyboxShader("res/shaders/skybox/VertexShader.glsl", "res/shaders/skybox/FragmentShader.glsl");
+    Shader screenShader("res/shaders/postProcessing/VertexShader.glsl", "res/shaders/postProcessing/FragmentShader.glsl");
 
     // Check for OpenGL errors after shader creation
     GLenum shaderErr = glGetError();
@@ -202,6 +143,9 @@ int main(void)
 
     skyboxShader.Bind();
     skyboxShader.SetUniform1i("u_Skybox", 0);
+
+    // Framebuffer initialization
+    Framebuffer framebuffer(width, height);
 
     // Enable depth 
     glEnable(GL_DEPTH_TEST);
@@ -245,6 +189,9 @@ int main(void)
         }
         ImGui::End();
 
+        framebuffer.Bind();
+        renderer.Clear();
+
         // Update universe's bodies
         universe.Update();
 
@@ -281,21 +228,20 @@ int main(void)
             }
 		}
 
-
         // Render skybox
-        glDepthFunc(GL_LEQUAL);
         skyboxShader.Bind();
-        skyboxShader.SetUniformMat4f("u_View", glm::mat4(glm::mat3(camera.GetViewMatrix())));
-        skyboxShader.SetUniformMat4f("u_Projection", camera.GetProjectionMatrix());
-        glBindVertexArray(skyboxVAO);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glDepthFunc(GL_LESS);
-
+        skybox.Draw(camera.GetViewMatrix(), camera.GetProjectionMatrix(), skyboxShader);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        framebuffer.Unbind();
+
+        // Render framebuffer
+        screenShader.Bind();
+        screenShader.SetUniform1i("screenTexture", 0);
+        renderer.DrawQuad();
+
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -325,36 +271,4 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     if (camera->m_distance - yoffset > 1.0f) {
         camera->m_distance -= yoffset;
     }
-}
-
-unsigned int loadCubemap(std::vector<std::string> faces)
-{
-    unsigned int textureID;
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-
-    int w, h, nrChannels;
-    for (unsigned int i = 0; i < faces.size(); i++)
-    {
-        unsigned char* data = stbi_load(faces[i].c_str(), &w, &h, &nrChannels, 0);
-        if (data)
-        {
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data
-            );
-            stbi_image_free(data);
-        }
-        else
-        {
-            std::cerr << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
-            stbi_image_free(data);
-        }
-    }
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-    return textureID;
 }
