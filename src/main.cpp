@@ -19,6 +19,8 @@
 #include "renderer/Skybox.h"
 #include "renderer/models/baseModels/Cube.h"
 #include "renderer/models/baseModels/Sphere.h"
+#include "renderer/BloomRenderer.h"
+
 
 #include "universe/Body.h"
 
@@ -31,16 +33,16 @@
 #define width 1920
 #define height 1080
 
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset); 
 
 std::vector<std::string> faces
 {
-    "res/textures/skybox/right.jpg",
-    "res/textures/skybox/left.jpg",
-    "res/textures/skybox/top.jpg",
-    "res/textures/skybox/bottom.jpg",
-    "res/textures/skybox/front.jpg",
-    "res/textures/skybox/back.jpg"
+    "res/textures/skybox/right.png",
+    "res/textures/skybox/left.png",
+    "res/textures/skybox/top.png",
+    "res/textures/skybox/bottom.png",
+    "res/textures/skybox/front.png",
+    "res/textures/skybox/back.png"
 };
 
 int main(void)
@@ -73,7 +75,7 @@ int main(void)
 
     glfwSetScrollCallback(window, scroll_callback);
 
-    /* Enable OpenGL debug output */
+    // Enable OpenGL debug output 
     glEnable(GL_DEBUG_OUTPUT);
 
     // Setup ImGui context
@@ -81,11 +83,10 @@ int main(void)
     ImGui::CreateContext();
 
     ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     
     // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(window, true); // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+    ImGui_ImplGlfw_InitForOpenGL(window, true); 
     ImGui_ImplOpenGL3_Init();
 
     // Create skybox
@@ -102,13 +103,17 @@ int main(void)
     // Create renderer
     Renderer renderer(Projection);
 
+    glm::vec4 starColor(1.0f, 1.0f, 0.25f, 1.0f);
+
     // Create bodies with a sphere as model
     Body body1(glm::vec3(20.0f, 0.0f, 0.0f), sphere, glm::vec4(0.0f, 0.5f, 0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 0.055f), 15.0f, 0.4f, 0.5f);
-    Body body2(glm::vec3(30.0f, 0.0f, 0.0f), sphere, glm::vec4(0.5f, 0.0f, 0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 0.055f), 10.0f, 0.5f, 0.35f);
-    Body star(glm::vec3(0.0f, 0.0f, 0.0f), sphere, glm::vec4(0.5f, 0.5f, 0.0f, 1.0f), glm::vec3(0.0f, 0.00f, 0.0f), 1000.0f, 100.0f,2.0f);
+    Body body2(glm::vec3(30.0f, 0.0f, 0.0f), sphere, glm::vec4(0.75f, 0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.055f), 10.0f, 0.5f, 0.35f);
+    Body body3(glm::vec3(40.0f, 0.0f, 0.0f), sphere, glm::vec4(0.0f, 0.75f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.055f), 10.0f, 0.5f, 0.35f);
+    Body star(glm::vec3(0.0f, 0.0f, 0.0f), sphere, starColor, glm::vec3(0.0f, 0.00f, 0.0f), 1000.0f, 100.0f,2.0f);
 
     body1.SetName("Planet 1");
     body2.SetName("Planet 2");
+    body3.SetName("Planet 3");
     star.SetName("Star");
 
     // Create Camera
@@ -120,6 +125,7 @@ int main(void)
     Universe universe;
     universe.AddBody(&body1);
     universe.AddBody(&body2);
+    universe.AddBody(&body3);
     universe.SetEmissiveBody(&star);
 
     // Create, compile and bind shader
@@ -127,7 +133,7 @@ int main(void)
     Shader defaultShader("res/shaders/default/VertexShader.glsl", "res/shaders/default/FragmentShader.glsl");
     Shader skyboxShader("res/shaders/skybox/VertexShader.glsl", "res/shaders/skybox/FragmentShader.glsl");
     Shader screenShader("res/shaders/postProcessing/VertexShader.glsl", "res/shaders/postProcessing/FragmentShader.glsl");
-
+    
     // Check for OpenGL errors after shader creation
     GLenum shaderErr = glGetError();
     if (shaderErr != GL_NO_ERROR)
@@ -138,14 +144,23 @@ int main(void)
     
     // Set shaders uniforms
     defaultShader.Bind();
-    defaultShader.SetUniform4f("u_LightColor", star.GetColor().x, star.GetColor().y, star.GetColor().z, star.GetColor().w);
+    defaultShader.SetUniform4f("u_LightColor",1.0f, 1.0f, 1.0f, 1.0f);
     defaultShader.SetUniform4f("u_LightPosition",star.GetPosition().x, star.GetPosition().y, star.GetPosition().z, 1.0f);
 
     skyboxShader.Bind();
     skyboxShader.SetUniform1i("u_Skybox", 0);
 
-    // Framebuffer initialization
-    Framebuffer framebuffer(width, height);
+    // Create HDR framebuffer
+    Framebuffer hdrFBO(width, height, 2);
+
+    // Create Bloom renderer
+    BloomRenderer bloomRenderer;
+    bloomRenderer.Init(width, height, renderer, 5);
+
+    // Set draw buffers
+    const GLenum drawBuffersAll[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    const GLenum drawBuffer0[] = { GL_COLOR_ATTACHMENT0 };
+    const GLenum drawBuffer1[] = { GL_COLOR_ATTACHMENT1 };
 
     // Enable depth 
     glEnable(GL_DEPTH_TEST);
@@ -154,12 +169,17 @@ int main(void)
     // Cull triangles which normal is not towards the camera
     glEnable(GL_CULL_FACE);
 
+    float starExposure = 1.0f;
+    float filterRadius = 0.005f;
+    float bloomIntensity = 1.0f;
+    int mipNumber = 1;
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         renderer.Clear();
 
-        // Start the Dear ImGui frame
+        // Start the ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -171,32 +191,37 @@ int main(void)
         // Loop to create checkboxes for each body in the universe
         for (unsigned int i = 0; i < universe.bodies.size(); i++)
         {
-            // Create a unique label for each checkbox
             std::string checkboxLabel = universe.bodies[i]->GetName();
 
             // Check if the checkbox is checked
             bool checked = (universe.GetFocusedBodyId() == i);
 
-            // Create the checkbox and set its state
             if (ImGui::Checkbox(checkboxLabel.c_str(), &checked))
             {
-                // If the checkbox state changed, update the focused body
                 if (checked)
                 {
                     universe.SetFocusedBody(i);
+                    camera.m_distance = universe.bodies[i]->GetRadius() * 10.0f;
                 }
             }
         }
         ImGui::End();
+        
+        ImGui::Begin("Star");
+        ImGui::SliderFloat("Exposure", &starExposure, 1.0f, 10.0f);
+        ImGui::SliderFloat("Filter Radius", &filterRadius, 0.001f, 0.1f);
+        ImGui::ColorEdit3("Star Color", &star.m_color.r);
+        ImGui::End();
 
-        framebuffer.Bind();
+        // Render to HDR framebuffer
+        hdrFBO.Bind();
         renderer.Clear();
 
         // Update universe's bodies
         universe.Update();
 
-        // Test if mouse pressed
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+        // Test if mouse pressed and not on ImGui window
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !ImGui::IsAnyItemHovered())
         {
             double xpos, ypos;
             glfwGetCursorPos(window, &xpos, &ypos);
@@ -212,36 +237,50 @@ int main(void)
         camera.SetLookAt(focusedBody->GetPosition());
         camera.m_position = focusedBody->GetPosition() + camera.m_distance * glm::normalize(focusedBody->GetPosition() - camera.GetOrbitPosition());
 
-        // Draw bodies
+        glDrawBuffers(1, drawBuffer0);
+        glClear(GL_COLOR_BUFFER_BIT);
+        // Draw bodies in hdrFBO color buffer 0
         for (unsigned int i = 0; i < universe.bodies.size(); i++)
         {
-            if (i == universe.GetEmissiveBodyId())
-            {
-                renderer.Draw(universe.bodies[i], camera.GetViewMatrix(), starShader);
-            }
-            else
+            if (i != universe.GetEmissiveBodyId())
             {
                 defaultShader.Bind();
                 glm::mat4 modelMat = glm::translate(glm::mat4(1.0f), universe.bodies[i]->GetPosition());
                 defaultShader.SetUniformMat4f("u_M", modelMat);
                 renderer.Draw(universe.bodies[i], camera.GetViewMatrix(), defaultShader);
-            }
+            } 
 		}
-
-        // Render skybox
+        // Render skybox in color buffer 0
         skyboxShader.Bind();
         skybox.Draw(camera.GetViewMatrix(), camera.GetProjectionMatrix(), skyboxShader);
+        
+
+        glDrawBuffers(2, drawBuffersAll);
+
+        // Render emissive body in both color buffers
+        starShader.Bind();
+        renderer.Draw(&star, camera.GetViewMatrix(), starShader);
+        hdrFBO.Unbind();
+
+        // Bloom effect
+        bloomRenderer.RenderBloomTexture(hdrFBO.GetTextureColorBuffer(1), filterRadius);
+        
+        // Render to screen
+        screenShader.Bind();
+        screenShader.SetUniform1i("scene", 0);
+        screenShader.SetUniform1i("bloomBlur", 1);
+        screenShader.SetUniform1f("bloomExposure", starExposure);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, hdrFBO.GetTextureColorBuffer(0)); // Scene texture
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, bloomRenderer.BloomTexture()); // Bloom texture
+
+        renderer.DrawQuad();
+
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        framebuffer.Unbind();
-
-        // Render framebuffer
-        screenShader.Bind();
-        screenShader.SetUniform1i("screenTexture", 0);
-        renderer.DrawQuad();
-
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -262,6 +301,7 @@ int main(void)
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+    bloomRenderer.Destroy();
     return 0;
 }
 

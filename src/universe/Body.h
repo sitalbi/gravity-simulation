@@ -15,8 +15,6 @@ private:
 	float m_surfaceGravity;
 	float m_radius;
 
-	glm::vec4 m_color;
-
 	std::string m_name;
 
 	Model& m_model;
@@ -37,4 +35,6 @@ public:
 	float GetSurfaceGravity() const { return m_surfaceGravity; }
 	float GetRadius() const { return m_radius; }
 	std::string GetName() const { return m_name; }
+
+	glm::vec4 m_color;
 };

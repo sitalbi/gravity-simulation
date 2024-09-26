@@ -16,6 +16,7 @@ void Body::SetName(std::string name)
 	m_name = name;
 }
 
+
 void Body::Translate(glm::vec3 translation)
 {
 	m_position += translation;

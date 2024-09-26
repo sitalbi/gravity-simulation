@@ -28,5 +28,7 @@ public:
 	void DrawQuad() const;
 	void Clear() const;
 
+	unsigned int GetQuadVAO() const { return m_quadVAO; }
+
 
 };

@@ -28,7 +28,7 @@ unsigned int Shader::CompileShader() {
         VertexShaderStream.close();
     }
     else {
-        printf("Impossible to open %s. Are you in the right directory ? Don't forget to read the FAQ !\n", m_vertexFilePath);
+        printf("Impossible to open %s. Are you in the right directory ? \n", m_vertexFilePath);
         getchar();
         return 0;
     }
@@ -43,7 +43,7 @@ unsigned int Shader::CompileShader() {
         FragmentShaderStream.close();
     }
     else {
-        printf("Impossible to open %s. Are you in the right directory ? Don't forget to read the FAQ !\n", m_fragmentFilePath);
+        printf("Impossible to open %s. Are you in the right directory ? \n", m_fragmentFilePath);
         getchar();
         return 0;
     }
@@ -134,6 +134,15 @@ void Shader::SetUniform1f(const std::string& name, float value)
 	int location = GetUniformLocation(name);
 	if (location != -1)
 		glUniform1f(location, value);
+	else
+		std::cerr << "Warning: Uniform '" << name << "' not found in shader." << std::endl;
+}
+
+void Shader::SetUniform2f(const std::string& name, float v0, float v1)
+{
+    int location = GetUniformLocation(name);
+	if (location != -1)
+		glUniform2f(location, v0, v1);
 	else
 		std::cerr << "Warning: Uniform '" << name << "' not found in shader." << std::endl;
 }

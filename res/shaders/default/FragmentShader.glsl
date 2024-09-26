@@ -1,6 +1,6 @@
 #version 330 core
 
-out vec4 color;
+layout(location = 0) out vec4 FragColor;
 
 in vec4 w_Position;
 in vec4 Normal;
@@ -23,5 +23,5 @@ void main()
 
     vec4 result = (ambientColor + diffuseColor) * u_Color;
 
-    color = result;
+    FragColor = result;
 }

@@ -133,6 +133,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\renderer\BloomRenderer.cpp" />
+    <ClCompile Include="src\renderer\BloomFBO.cpp" />
     <ClCompile Include="Dependencies\include\glm\detail\glm.cpp" />
     <ClCompile Include="Dependencies\include\imgui\imgui.cpp" />
     <ClCompile Include="Dependencies\include\imgui\imgui_demo.cpp" />
@@ -437,6 +439,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\ressources\libraries\imgui-1.90.4\backends\imgui_impl_glfw.h" />
+    <ClInclude Include="src\renderer\BloomRenderer.h" />
+    <ClInclude Include="src\renderer\BloomFBO.h" />
     <ClInclude Include="Dependencies\include\glm\common.hpp" />
     <ClInclude Include="Dependencies\include\glm\detail\compute_common.hpp" />
     <ClInclude Include="Dependencies\include\glm\detail\compute_vector_relational.hpp" />

@@ -1,6 +1,6 @@
 #version 330 core
 
-out vec4 FragColor;
+layout(location = 0) out vec4 FragColor;
 
 in vec3 TexCoords;
 
@@ -8,5 +8,6 @@ uniform samplerCube u_Skybox;
 
 void main()
 {    
-    FragColor = texture(u_Skybox, TexCoords);
+    vec4 color = texture(u_Skybox, TexCoords);
+    FragColor = vec4(color.rgb, 1.0);
 }

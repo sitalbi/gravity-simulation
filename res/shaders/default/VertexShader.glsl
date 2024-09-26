@@ -9,8 +9,6 @@ out vec4 Normal;
 uniform mat4 u_MVP;
 uniform mat4 u_M;
 
-float specularStrength = 0.5;
-
 void main()
 {
     // Output position of the vertex : MVP * position
